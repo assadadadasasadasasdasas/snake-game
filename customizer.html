@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tasarla & Sipariş Ver — Custom Wear</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0c;
+    --surface: #131318;
+    --surface2: #1c1c24;
+    --border: #2a2a35;
+    --text: #e8e6f0;
+    --text-muted: #8a889a;
+    --accent: #c9f73d;
+    --accent-dim: #a8d42e;
+    --danger: #ff4d6a;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Noise overlay ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,12,0.85);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.7; }
+  }
+
+  .header-badge {
+    font-size: 0.72rem;
+    padding: 6px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── Main Layout ── */
+  main {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    min-height: calc(100vh - 70px);
+    animation: fadeUp 0.8s ease-out;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Preview Panel ── */
+  .preview-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 40px;
+    background: radial-gradient(ellipse at 30% 40%, rgba(201,247,61,0.04), transparent 60%),
+                radial-gradient(ellipse at 70% 70%, rgba(100,100,255,0.03), transparent 50%);
+  }
+
+  .preview-container {
+    position: relative;
+    width: 500px;
+    height: 560px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .preview-canvas-wrap {
+    position: relative;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .preview-canvas-wrap:hover {
+    transform: scale(1.02);
+  }
+
+  canvas#productCanvas {
+    border-radius: var(--radius);
+    filter: drop-shadow(0 30px 60px rgba(0,0,0,0.4));
+  }
+
+  .zoom-hint {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    padding: 6px 16px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    opacity: 0.6;
+  }
+
+  /* ── Controls Panel ── */
+  .controls-panel {
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    padding: 32px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  /* ── Product Type Selector ── */
+  .product-types {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .product-type-btn {
+    position: relative;
+    padding: 18px 16px;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .product-type-btn svg {
+    width: 32px;
+    height: 32px;
+    opacity: 0.6;
+    transition: opacity 0.25s;
+  }
+
+  .product-type-btn:hover {
+    border-color: var(--accent);
+    background: rgba(201,247,61,0.05);
+  }
+
+  .product-type-btn:hover svg { opacity: 1; }
+
+  .product-type-btn.active {
+    border-color: var(--accent);
+    background: rgba(201,247,61,0.08);
+    color: var(--accent);
+  }
+
+  .product-type-btn.active svg { opacity: 1; }
+
+  /* ── Color Picker ── */
+  .color-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .color-swatch {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .color-swatch:hover {
+    transform: scale(1.15);
+  }
+
+  .color-swatch.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(201,247,61,0.2);
+  }
+
+  .color-swatch.active::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  /* ── Upload Area ── */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 36px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    background: var(--surface2);
+  }
+
+  .upload-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,247,61,0.03), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .upload-zone:hover {
+    border-color: var(--accent);
+  }
+
+  .upload-zone:hover::before { opacity: 1; }
+
+  .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(201,247,61,0.06);
+  }
+
+  .upload-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 12px;
+    background: rgba(201,247,61,0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .upload-zone h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .upload-zone p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .upload-zone input { display: none; }
+
+  /* ── Uploaded image preview ── */
+  .uploaded-preview {
+    display: none;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+
+  .uploaded-preview.show { display: flex; }
+
+  .uploaded-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+  }
+
+  .uploaded-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .uploaded-info .name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .uploaded-info .size {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .remove-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255,77,106,0.1);
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .remove-btn:hover { background: rgba(255,77,106,0.2); }
+
+  /* ── Size Controls ── */
+  .slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .slider-label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    width: 60px;
+    flex-shrink: 0;
+  }
+
+  .slider-value {
+    font-size: 0.78rem;
+    color: var(--accent);
+    font-weight: 600;
+    width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(201,247,61,0.3);
+    transition: transform 0.15s;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+  }
+
+  /* ── Price & CTA ── */
+  .price-section {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+  }
+
+  .price-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .price-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: var(--text);
+  }
+
+  .price-value span {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .cta-btn {
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: #0a0a0c;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+  }
+
+  .cta-btn:hover {
+    background: var(--accent-dim);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(201,247,61,0.25);
+  }
+
+  .cta-btn:hover::after {
+    transform: translateX(100%);
+  }
+
+  .cta-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .cta-sub {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 10px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    main {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+    }
+
+    .preview-panel { padding: 24px; min-height: 400px; }
+    .preview-container { width: 320px; height: 380px; }
+    .controls-panel { padding: 24px; }
+    header { padding: 16px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="logo-dot"></span> CUSTOM WEAR</div>
+  <div class="header-badge">Tasarla & Sipariş Ver</div>
+</header>
+
+<main>
+  <!-- Preview -->
+  <section class="preview-panel">
+    <div class="preview-container">
+      <div class="preview-canvas-wrap">
+        <canvas id="productCanvas" width="480" height="540"></canvas>
+      </div>
+      <div class="zoom-hint">Fare ile yakınlaştırabilirsiniz</div>
+    </div>
+  </section>
+
+  <!-- Controls -->
+  <aside class="controls-panel">
+
+    <!-- Product Type -->
+    <div>
+      <div class="section-title">Ürün Tipi</div>
+      <div class="product-types">
+        <button class="product-type-btn active" data-type="tshirt" onclick="setProduct('tshirt')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.5 2L2 6.5l3 1.5V20a1 1 0 001 1h12a1 1 0 001-1V8l3-1.5L17.5 2h-4L12 4l-1.5-2h-4z"/></svg>
+          Tişört
+        </button>
+        <button class="product-type-btn" data-type="hat" onclick="setProduct('hat')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 14c0 0 2-2 9-2s9 2 9 2"/><path d="M4 14v2c0 1.1.9 2 2 2h12a2 2 0 002-2v-2"/><path d="M7 14V8a5 5 0 0110 0v6"/><path d="M3 14l-1 3h20l-1-3"/></svg>
+          Şapka
+        </button>
+      </div>
+    </div>
+
+    <!-- Color -->
+    <div>
+      <div class="section-title">Ürün Rengi</div>
+      <div class="color-options" id="colorOptions"></div>
+    </div>
+
+    <!-- Upload -->
+    <div>
+      <div class="section-title">Tasarım Yükle</div>
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9f73d" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <h3>Görselinizi sürükleyin</h3>
+        <p>veya tıklayıp dosya seçin · PNG, JPG · maks 10MB</p>
+        <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp">
+      </div>
+      <div class="uploaded-preview" id="uploadedPreview">
+        <img class="uploaded-thumb" id="uploadedThumb" src="" alt="">
+        <div class="uploaded-info">
+          <div class="name" id="uploadedName"></div>
+          <div class="size" id="uploadedSize"></div>
+        </div>
+        <button class="remove-btn" onclick="removeDesign()" title="Kaldır">✕</button>
+      </div>
+    </div>
+
+    <!-- Size / Position -->
+    <div>
+      <div class="section-title">Boyut & Konum</div>
+      <div class="slider-group">
+        <div class="slider-row">
+          <span class="slider-label">Boyut</span>
+          <input type="range" id="sizeSlider" min="20" max="100" value="60" oninput="updatePreview()">
+          <span class="slider-value" id="sizeVal">60%</span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label">Dikey</span>
+          <input type="range" id="ySlider" min="0" max="100" value="50" oninput="updatePreview()">
+          <span class="slider-value" id="yVal">50%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Price & CTA -->
+    <div class="price-section">
+      <div class="price-row">
+        <span class="price-label">Toplam fiyat</span>
+        <span class="price-value" id="priceDisplay">₺349 <span>TL</span></span>
+      </div>
+      <button class="cta-btn" id="ctaBtn" disabled>
+        Sepete Ekle →
+      </button>
+      <p class="cta-sub">Ücretsiz kargo · 3-5 iş günü teslimat</p>
+    </div>
+
+  </aside>
+</main>
+
+<script>
+// ─── State ───
+const state = {
+  product: 'tshirt',
+  color: '#1a1a2e',
+  designImg: null,
+  size: 60,
+  yPos: 50,
+};
+
+const colors = {
+  tshirt: [
+    { hex: '#1a1a2e', name: 'Siyah' },
+    { hex: '#f5f5f0', name: 'Beyaz' },
+    { hex: '#2d4a3e', name: 'Orman' },
+    { hex: '#4a2d2d', name: 'Bordo' },
+    { hex: '#2d3a4a', name: 'Lacivert' },
+    { hex: '#c8b89a', name: 'Bej' },
+    { hex: '#6b5b73', name: 'Mor' },
+  ],
+  hat: [
+    { hex: '#1a1a2e', name: 'Siyah' },
+    { hex: '#f5f5f0', name: 'Beyaz' },
+    { hex: '#2d3a4a', name: 'Lacivert' },
+    { hex: '#4a2d2d', name: 'Bordo' },
+    { hex: '#3a6b4a', name: 'Yeşil' },
+    { hex: '#c8b89a', name: 'Bej' },
+  ]
+};
+
+const prices = { tshirt: 349, hat: 399 };
+
+const canvas = document.getElementById('productCanvas');
+const ctx = canvas.getContext('2d');
+
+// ─── Init ───
+function init() {
+  renderColors();
+  updatePreview();
+}
+
+// ─── Product switcher ───
+function setProduct(type) {
+  state.product = type;
+  state.color = colors[type][0].hex;
+  document.querySelectorAll('.product-type-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+  });
+  document.getElementById('priceDisplay').innerHTML = `₺${prices[type]} <span>TL</span>`;
+  renderColors();
+  updatePreview();
+}
+
+// ─── Colors ───
+function renderColors() {
+  const container = document.getElementById('colorOptions');
+  container.innerHTML = '';
+  colors[state.product].forEach((c, i) => {
+    const swatch = document.createElement('div');
+    swatch.className = 'color-swatch' + (c.hex === state.color ? ' active' : '');
+    swatch.style.background = c.hex;
+    if (c.hex === '#f5f5f0') swatch.style.border = '3px solid #333';
+    swatch.title = c.name;
+    swatch.onclick = () => {
+      state.color = c.hex;
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      swatch.classList.add('active');
+      updatePreview();
+    };
+    container.appendChild(swatch);
+  });
+}
+
+// ─── Upload ───
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+function handleFile(file) {
+  if (file.size > 10 * 1024 * 1024) { alert('Dosya boyutu 10MB\'ı aşamaz.'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      state.designImg = img;
+      showUploadedPreview(file, e.target.result);
+      document.getElementById('ctaBtn').disabled = false;
+      updatePreview();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showUploadedPreview(file, src) {
+  uploadZone.style.display = 'none';
+  const prev = document.getElementById('uploadedPreview');
+  prev.classList.add('show');
+  document.getElementById('uploadedThumb').src = src;
+  document.getElementById('uploadedName').textContent = file.name;
+  document.getElementById('uploadedSize').textContent = (file.size / 1024).toFixed(0) + ' KB';
+}
+
+function removeDesign() {
+  state.designImg = null;
+  uploadZone.style.display = '';
+  document.getElementById('uploadedPreview').classList.remove('show');
+  document.getElementById('ctaBtn').disabled = true;
+  fileInput.value = '';
+  updatePreview();
+}
+
+// ─── Drawing ───
+function updatePreview() {
+  state.size = +document.getElementById('sizeSlider').value;
+  state.yPos = +document.getElementById('ySlider').value;
+  document.getElementById('sizeVal').textContent = state.size + '%';
+  document.getElementById('yVal').textContent = state.yPos + '%';
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (state.product === 'tshirt') drawTshirt();
+  else drawHat();
+}
+
+function drawTshirt() {
+  const w = canvas.width, h = canvas.height;
+  const c = state.color;
+
+  ctx.save();
+
+  // Shadow
+  ctx.shadowColor = 'rgba(0,0,0,0.3)';
+  ctx.shadowBlur = 40;
+  ctx.shadowOffsetY = 15;
+
+  // T-shirt shape
+  ctx.beginPath();
+  ctx.moveTo(130, 60);   // left shoulder inner
+  ctx.lineTo(50, 85);    // left sleeve top
+  ctx.lineTo(20, 170);   // left sleeve outer
+  ctx.lineTo(80, 190);   // left sleeve bottom
+  ctx.lineTo(100, 140);  // left armpit
+  ctx.lineTo(100, 490);  // left bottom
+  ctx.lineTo(380, 490);  // bottom
+  ctx.lineTo(380, 140);  // right armpit
+  ctx.lineTo(400, 190);  // right sleeve bottom
+  ctx.lineTo(460, 170);  // right sleeve outer
+  ctx.lineTo(430, 85);   // right sleeve top
+  ctx.lineTo(350, 60);   // right shoulder inner
+
+  // Collar curve
+  ctx.quadraticCurveTo(310, 40, 280, 38);
+  ctx.quadraticCurveTo(240, 32, 200, 38);
+  ctx.quadraticCurveTo(170, 40, 130, 60);
+
+  ctx.closePath();
+
+  // Fill
+  ctx.fillStyle = c;
+  ctx.fill();
+
+  ctx.shadowColor = 'transparent';
+
+  // Collar detail
+  ctx.beginPath();
+  ctx.moveTo(140, 62);
+  ctx.quadraticCurveTo(240, 28, 340, 62);
+  ctx.quadraticCurveTo(240, 80, 140, 62);
+  ctx.closePath();
+  const isLight = isLightColor(c);
+  ctx.fillStyle = isLight ? darken(c, 0.08) : lighten(c, 0.06);
+  ctx.fill();
+
+  // Stitching lines (subtle)
+  ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(100, 490);
+  ctx.lineTo(380, 490);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.restore();
+
+  // Design area (chest)
+  if (state.designImg) {
+    const printAreaW = 200 * (state.size / 100);
+    const printAreaH = (state.designImg.height / state.designImg.width) * printAreaW;
+    const maxH = 250 * (state.size / 100);
+    const finalH = Math.min(printAreaH, maxH);
+    const finalW = (finalH === maxH) ? (state.designImg.width / state.designImg.height) * finalH : printAreaW;
+
+    const cx = 240;
+    const yMin = 110;
+    const yMax = 420 - finalH;
+    const cy = yMin + (yMax - yMin) * (state.yPos / 100);
+
+    ctx.save();
+    ctx.globalAlpha = 0.92;
+    // Blend mode for fabric feel
+    if (c !== '#f5f5f0') ctx.globalCompositeOperation = 'screen';
+    ctx.drawImage(state.designImg, cx - finalW / 2, cy, finalW, finalH);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 0.88;
+    ctx.drawImage(state.designImg, cx - finalW / 2, cy, finalW, finalH);
+    ctx.restore();
+  }
+}
+
+function drawHat() {
+  const w = canvas.width, h = canvas.height;
+  const c = state.color;
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.35)';
+  ctx.shadowBlur = 40;
+  ctx.shadowOffsetY = 10;
+
+  // Visor
+  ctx.beginPath();
+  ctx.moveTo(70, 310);
+  ctx.quadraticCurveTo(100, 370, 240, 380);
+  ctx.quadraticCurveTo(380, 370, 420, 310);
+  ctx.quadraticCurveTo(390, 340, 240, 350);
+  ctx.quadraticCurveTo(110, 340, 70, 310);
+  ctx.closePath();
+  const isLight = isLightColor(c);
+  ctx.fillStyle = isLight ? darken(c, 0.12) : darken(c, 0.25);
+  ctx.fill();
+
+  // Main crown
+  ctx.beginPath();
+  ctx.moveTo(80, 310);
+  ctx.quadraticCurveTo(80, 130, 180, 100);
+  ctx.quadraticCurveTo(240, 85, 300, 100);
+  ctx.quadraticCurveTo(400, 130, 410, 310);
+  ctx.quadraticCurveTo(350, 320, 240, 325);
+  ctx.quadraticCurveTo(140, 320, 80, 310);
+  ctx.closePath();
+  ctx.fillStyle = c;
+  ctx.fill();
+
+  ctx.shadowColor = 'transparent';
+
+  // Center seam
+  ctx.beginPath();
+  ctx.moveTo(240, 92);
+  ctx.lineTo(240, 320);
+  ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Button on top
+  ctx.beginPath();
+  ctx.arc(240, 96, 7, 0, Math.PI * 2);
+  ctx.fillStyle = isLight ? darken(c, 0.1) : lighten(c, 0.1);
+  ctx.fill();
+
+  // Brim edge highlight
+  ctx.beginPath();
+  ctx.moveTo(80, 310);
+  ctx.quadraticCurveTo(160, 325, 240, 328);
+  ctx.quadraticCurveTo(330, 325, 410, 310);
+  ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.restore();
+
+  // Design on front panel
+  if (state.designImg) {
+    const maxPrintW = 160 * (state.size / 100);
+    const maxPrintH = 110 * (state.size / 100);
+    const imgRatio = state.designImg.width / state.designImg.height;
+
+    let dw, dh;
+    if (imgRatio > maxPrintW / maxPrintH) {
+      dw = maxPrintW;
+      dh = dw / imgRatio;
+    } else {
+      dh = maxPrintH;
+      dw = dh * imgRatio;
+    }
+
+    const cx = 240;
+    const yMin = 130;
+    const yMax = 280 - dh;
+    const cy = yMin + (yMax - yMin) * (state.yPos / 100);
+
+    ctx.save();
+    ctx.globalAlpha = 0.9;
+    if (c !== '#f5f5f0') ctx.globalCompositeOperation = 'screen';
+    ctx.drawImage(state.designImg, cx - dw / 2, cy, dw, dh);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 0.85;
+    ctx.drawImage(state.designImg, cx - dw / 2, cy, dw, dh);
+    ctx.restore();
+  }
+}
+
+// ─── Helpers ───
+function isLightColor(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 128;
+}
+
+function darken(hex, amount) {
+  let r = parseInt(hex.slice(1, 3), 16);
+  let g = parseInt(hex.slice(3, 5), 16);
+  let b = parseInt(hex.slice(5, 7), 16);
+  r = Math.max(0, Math.floor(r * (1 - amount)));
+  g = Math.max(0, Math.floor(g * (1 - amount)));
+  b = Math.max(0, Math.floor(b * (1 - amount)));
+  return `rgb(${r},${g},${b})`;
+}
+
+function lighten(hex, amount) {
+  let r = parseInt(hex.slice(1, 3), 16);
+  let g = parseInt(hex.slice(3, 5), 16);
+  let b = parseInt(hex.slice(5, 7), 16);
+  r = Math.min(255, Math.floor(r + (255 - r) * amount));
+  g = Math.min(255, Math.floor(g + (255 - g) * amount));
+  b = Math.min(255, Math.floor(b + (255 - b) * amount));
+  return `rgb(${r},${g},${b})`;
+}
+
+// ─── CTA ───
+document.getElementById('ctaBtn').addEventListener('click', () => {
+  if (!state.designImg) return;
+  const btn = document.getElementById('ctaBtn');
+  btn.textContent = '✓ Sepete Eklendi!';
+  btn.style.background = '#2ecc71';
+  setTimeout(() => {
+    btn.textContent = 'Sepete Ekle →';
+    btn.style.background = '';
+  }, 2000);
+});
+
+// Boot
+init();
+</script>
+</body>
+</html>
