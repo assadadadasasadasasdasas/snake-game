@@ -3,984 +3,985 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tasarla & Sipariş Ver — Custom Wear</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<title>İstanbul Banyo | Premium Banyo Dolapları, Duşakabinler & Banyo Mobilyaları | Türkiye'nin #1 Banyo Markası</title>
+<meta name="description" content="İstanbul Banyo - Premium banyo dolapları, duşakabinler, aynalı dolaplar, lavabo takımları ve banyo aksesuarları. 100+ model, 12 aya varan taksit, ücretsiz kargo ve montaj.">
+<meta name="keywords" content="banyo dolabı, duşakabin, aynalı dolap, lavabo, banyo mobilyası, banyo takımı, istanbul banyo, premium banyo, modern banyo, banyo dekorasyon">
+<meta property="og:title" content="İstanbul Banyo | Premium Banyo Çözümleri">
+<meta property="og:description" content="100+ premium banyo modeli. 12 ay taksit, ücretsiz kargo ve montaj.">
+<link rel="canonical" href="https://www.istanbulbanyo.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Jost:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a0c;
-    --surface: #131318;
-    --surface2: #1c1c24;
-    --border: #2a2a35;
-    --text: #e8e6f0;
-    --text-muted: #8a889a;
-    --accent: #c9f73d;
-    --accent-dim: #a8d42e;
-    --danger: #ff4d6a;
-    --radius: 16px;
-    --radius-sm: 10px;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ── Noise overlay ── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 9999;
-  }
-
-  /* ── Header ── */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 40px;
-    border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(20px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(10,10,12,0.85);
-  }
-
-  .logo {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 1.4rem;
-    letter-spacing: -0.5px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .logo-dot {
-    width: 10px;
-    height: 10px;
-    background: var(--accent);
-    border-radius: 50%;
-    display: inline-block;
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.3); opacity: 0.7; }
-  }
-
-  .header-badge {
-    font-size: 0.72rem;
-    padding: 6px 14px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  /* ── Main Layout ── */
-  main {
-    display: grid;
-    grid-template-columns: 1fr 420px;
-    min-height: calc(100vh - 70px);
-    animation: fadeUp 0.8s ease-out;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ── Preview Panel ── */
-  .preview-panel {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    padding: 40px;
-    background: radial-gradient(ellipse at 30% 40%, rgba(201,247,61,0.04), transparent 60%),
-                radial-gradient(ellipse at 70% 70%, rgba(100,100,255,0.03), transparent 50%);
-  }
-
-  .preview-container {
-    position: relative;
-    width: 500px;
-    height: 560px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .preview-canvas-wrap {
-    position: relative;
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  .preview-canvas-wrap:hover {
-    transform: scale(1.02);
-  }
-
-  canvas#productCanvas {
-    border-radius: var(--radius);
-    filter: drop-shadow(0 30px 60px rgba(0,0,0,0.4));
-  }
-
-  .zoom-hint {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    background: var(--surface);
-    padding: 6px 16px;
-    border-radius: 100px;
-    border: 1px solid var(--border);
-    opacity: 0.6;
-  }
-
-  /* ── Controls Panel ── */
-  .controls-panel {
-    background: var(--surface);
-    border-left: 1px solid var(--border);
-    padding: 32px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-  }
-
-  .section-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 0.8rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .section-title::before {
-    content: '';
-    width: 4px;
-    height: 4px;
-    background: var(--accent);
-    border-radius: 50%;
-  }
-
-  /* ── Product Type Selector ── */
-  .product-types {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .product-type-btn {
-    position: relative;
-    padding: 18px 16px;
-    background: var(--surface2);
-    border: 2px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.25s ease;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 500;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .product-type-btn svg {
-    width: 32px;
-    height: 32px;
-    opacity: 0.6;
-    transition: opacity 0.25s;
-  }
-
-  .product-type-btn:hover {
-    border-color: var(--accent);
-    background: rgba(201,247,61,0.05);
-  }
-
-  .product-type-btn:hover svg { opacity: 1; }
-
-  .product-type-btn.active {
-    border-color: var(--accent);
-    background: rgba(201,247,61,0.08);
-    color: var(--accent);
-  }
-
-  .product-type-btn.active svg { opacity: 1; }
-
-  /* ── Color Picker ── */
-  .color-options {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .color-swatch {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    border: 3px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-  }
-
-  .color-swatch:hover {
-    transform: scale(1.15);
-  }
-
-  .color-swatch.active {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(201,247,61,0.2);
-  }
-
-  .color-swatch.active::after {
-    content: '✓';
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 700;
-    color: white;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-  }
-
-  /* ── Upload Area ── */
-  .upload-zone {
-    border: 2px dashed var(--border);
-    border-radius: var(--radius);
-    padding: 36px 24px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    background: var(--surface2);
-  }
-
-  .upload-zone::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(201,247,61,0.03), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .upload-zone:hover {
-    border-color: var(--accent);
-  }
-
-  .upload-zone:hover::before { opacity: 1; }
-
-  .upload-zone.dragover {
-    border-color: var(--accent);
-    background: rgba(201,247,61,0.06);
-  }
-
-  .upload-icon {
-    width: 48px;
-    height: 48px;
-    margin: 0 auto 12px;
-    background: rgba(201,247,61,0.1);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .upload-zone h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-
-  .upload-zone p {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-  }
-
-  .upload-zone input { display: none; }
-
-  /* ── Uploaded image preview ── */
-  .uploaded-preview {
-    display: none;
-    align-items: center;
-    gap: 14px;
-    padding: 14px;
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-  }
-
-  .uploaded-preview.show { display: flex; }
-
-  .uploaded-thumb {
-    width: 56px;
-    height: 56px;
-    border-radius: 8px;
-    object-fit: cover;
-    border: 1px solid var(--border);
-  }
-
-  .uploaded-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .uploaded-info .name {
-    font-weight: 600;
-    font-size: 0.85rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .uploaded-info .size {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-  }
-
-  .remove-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: rgba(255,77,106,0.1);
-    border: none;
-    color: var(--danger);
-    cursor: pointer;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-    flex-shrink: 0;
-  }
-
-  .remove-btn:hover { background: rgba(255,77,106,0.2); }
-
-  /* ── Size Controls ── */
-  .slider-group {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .slider-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .slider-label {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    width: 60px;
-    flex-shrink: 0;
-  }
-
-  .slider-value {
-    font-size: 0.78rem;
-    color: var(--accent);
-    font-weight: 600;
-    width: 36px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  input[type="range"] {
-    flex: 1;
-    -webkit-appearance: none;
-    height: 4px;
-    background: var(--border);
-    border-radius: 4px;
-    outline: none;
-  }
-
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--accent);
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(201,247,61,0.3);
-    transition: transform 0.15s;
-  }
-
-  input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
-  }
-
-  /* ── Price & CTA ── */
-  .price-section {
-    margin-top: auto;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-  }
-
-  .price-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 16px;
-  }
-
-  .price-label {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-  }
-
-  .price-value {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 1.8rem;
-    color: var(--text);
-  }
-
-  .price-value span {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    font-weight: 400;
-  }
-
-  .cta-btn {
-    width: 100%;
-    padding: 18px;
-    border: none;
-    border-radius: var(--radius-sm);
-    background: var(--accent);
-    color: #0a0a0c;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .cta-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transform: translateX(-100%);
-    transition: transform 0.5s;
-  }
-
-  .cta-btn:hover {
-    background: var(--accent-dim);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(201,247,61,0.25);
-  }
-
-  .cta-btn:hover::after {
-    transform: translateX(100%);
-  }
-
-  .cta-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-
-  .cta-sub {
-    text-align: center;
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    margin-top: 10px;
-  }
-
-  /* ── Responsive ── */
-  @media (max-width: 900px) {
-    main {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto auto;
-    }
-
-    .preview-panel { padding: 24px; min-height: 400px; }
-    .preview-container { width: 320px; height: 380px; }
-    .controls-panel { padding: 24px; }
-    header { padding: 16px 20px; }
-  }
+:root{
+  --gold:#B8926A;--gold-light:#D4B896;--gold-dark:#8C6D4F;
+  --black:#1a1a1a;--charcoal:#2a2a2a;--dark:#333;
+  --gray:#777;--light-gray:#bbb;--border:#e8e2da;
+  --bg:#FFFFFF;--bg-warm:#FBF9F6;--bg-cream:#F5F0EB;
+  --text:#2a2a2a;--text-light:#666;--text-lighter:#999;
+  --red:#C0392B;--green:#27AE60;
+  --shadow:0 4px 30px rgba(0,0,0,.06);
+  --shadow-hover:0 12px 40px rgba(0,0,0,.1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg-cream)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
+img{max-width:100%;display:block}a{text-decoration:none;color:inherit}
+
+/* PRELOADER */
+.preloader{position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .8s,visibility .8s}
+.preloader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.preloader-logo{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:300;letter-spacing:.6em;color:var(--gold);text-transform:uppercase;opacity:0;animation:pF 1s ease .3s forwards}
+.preloader-sub{font-size:.6rem;letter-spacing:.5em;color:var(--text-lighter);margin-top:10px;text-transform:uppercase;opacity:0;animation:pF 1s ease .6s forwards}
+.preloader-bar{width:200px;height:2px;background:var(--border);margin-top:30px;border-radius:2px;overflow:hidden}
+.preloader-bar::after{content:'';display:block;width:0;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));animation:pB 2s ease forwards}
+@keyframes pF{to{opacity:1}}@keyframes pB{to{width:100%}}
+
+/* TOPBAR */
+.topbar{background:var(--gold);padding:9px 50px;display:flex;justify-content:center;gap:50px;font-size:.68rem;font-weight:500;color:#fff;letter-spacing:.1em;position:relative;z-index:999}
+.topbar span{display:flex;align-items:center;gap:8px;white-space:nowrap}
+
+/* NAV */
+nav{position:fixed;top:35px;width:100%;z-index:1000;padding:18px 50px;display:flex;align-items:center;justify-content:space-between;transition:all .5s;background:rgba(255,255,255,.85);backdrop-filter:blur(20px)}
+nav.scrolled{top:0;background:rgba(255,255,255,.97);backdrop-filter:blur(30px);padding:12px 50px;box-shadow:0 2px 20px rgba(0,0,0,.06)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:500;letter-spacing:.25em;color:var(--gold-dark);text-transform:uppercase}
+.nav-logo span{display:block;font-family:'Jost',sans-serif;font-weight:300;font-size:.38em;letter-spacing:.5em;color:var(--text-lighter);margin-top:2px}
+.nav-center{display:flex;gap:32px;align-items:center}
+.nav-center a{color:var(--text-light);font-size:.68rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;transition:color .3s;position:relative}
+.nav-center a::after{content:'';position:absolute;bottom:-5px;left:0;width:0;height:1.5px;background:var(--gold);transition:width .4s}
+.nav-center a:hover{color:var(--gold-dark)}
+.nav-center a:hover::after{width:100%}
+.nav-right{display:flex;gap:16px;align-items:center}
+.nav-icon{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;cursor:pointer;transition:all .3s;color:var(--text-light)}
+.nav-icon:hover{border-color:var(--gold);color:var(--gold-dark);background:rgba(184,146,106,.05)}
+.nav-phone{font-size:.72rem;color:var(--gold-dark);font-weight:500;letter-spacing:.08em}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;z-index:1001}
+.hamburger span{width:24px;height:1.5px;background:var(--gold-dark);transition:.3s}
+
+/* HERO */
+.hero{height:100vh;position:relative;display:flex;align-items:center;overflow:hidden;margin-top:35px}
+.hero-bg{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=1920&q=85') center/cover;animation:heroZ 30s ease infinite alternate}
+@keyframes heroZ{0%{transform:scale(1.08)}100%{transform:scale(1)}}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.7) 0%,rgba(255,255,255,.4) 30%,rgba(255,255,255,.5) 60%,rgba(255,255,255,.95) 100%)}
+.hero-content{position:relative;text-align:center;max-width:950px;margin:0 auto;padding:0 30px}
+.hero-badge{display:inline-flex;align-items:center;gap:14px;padding:9px 26px;border:1px solid rgba(184,146,106,.4);background:rgba(255,255,255,.7);backdrop-filter:blur(10px);border-radius:30px;margin-bottom:35px;font-size:.6rem;letter-spacing:.45em;text-transform:uppercase;color:var(--gold-dark);opacity:0;animation:fadeUp 1s ease .6s forwards}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,7vw,6rem);font-weight:400;line-height:1.05;color:var(--black);margin-bottom:25px;opacity:0;animation:fadeUp 1.2s ease .8s forwards}
+.hero h1 em{font-style:italic;color:var(--gold-dark)}
+.hero-desc{font-size:1rem;color:var(--text-light);font-weight:300;line-height:1.9;max-width:580px;margin:0 auto 40px;opacity:0;animation:fadeUp 1s ease 1s forwards}
+.hero-buttons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp 1s ease 1.2s forwards}
+.btn-gold{padding:16px 44px;background:var(--gold);color:#fff;border:none;font-family:'Jost',sans-serif;font-size:.7rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;transition:all .4s;border-radius:2px}
+.btn-gold:hover{background:var(--gold-dark);box-shadow:0 10px 35px rgba(184,146,106,.35);transform:translateY(-2px)}
+.btn-outline{padding:16px 44px;background:rgba(255,255,255,.6);color:var(--text);border:1.5px solid var(--gold);font-family:'Jost',sans-serif;font-size:.7rem;font-weight:400;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;transition:all .4s;border-radius:2px;backdrop-filter:blur(10px)}
+.btn-outline:hover{background:var(--gold);color:#fff}
+.hero-features{display:flex;justify-content:center;gap:30px;margin-top:45px;opacity:0;animation:fadeUp 1s ease 1.5s forwards;flex-wrap:wrap}
+.hero-feat{display:flex;align-items:center;gap:8px;font-size:.7rem;color:var(--text-light);background:rgba(255,255,255,.7);backdrop-filter:blur(10px);padding:8px 18px;border-radius:20px;border:1px solid var(--border)}
+.hero-feat .ic{color:var(--green);font-weight:700}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+/* TRUST BAR */
+.trust-bar{background:var(--bg-warm);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:28px 50px}
+.trust-grid{display:flex;justify-content:center;gap:50px;flex-wrap:wrap;max-width:1300px;margin:0 auto}
+.trust-item{display:flex;align-items:center;gap:14px}
+.trust-icon{width:48px;height:48px;border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:var(--bg);flex-shrink:0}
+.trust-text h4{font-size:.78rem;font-weight:500;color:var(--text);margin-bottom:2px}
+.trust-text p{font-size:.65rem;color:var(--text-lighter);font-weight:300}
+
+/* SECTIONS */
+section{padding:100px 50px}
+.section-header{text-align:center;margin-bottom:60px}
+.section-label{font-size:.6rem;letter-spacing:.5em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:block}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:400;line-height:1.15;color:var(--text);margin-bottom:14px}
+.section-divider{width:50px;height:1.5px;margin:0 auto 14px;background:var(--gold)}
+.section-subtitle{font-size:.88rem;color:var(--text-light);font-weight:300;max-width:550px;margin:0 auto;line-height:1.8}
+
+/* CATEGORIES */
+.categories{background:var(--bg)}
+.cat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;max-width:1300px;margin:0 auto}
+.cat-card{position:relative;overflow:hidden;cursor:pointer;aspect-ratio:3/4;border-radius:8px;box-shadow:var(--shadow)}
+.cat-card img{width:100%;height:100%;object-fit:cover;transition:transform .8s;filter:brightness(.85)}
+.cat-card:hover img{transform:scale(1.08);filter:brightness(.6)}
+.cat-card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.7)100%);border-radius:8px}
+.cat-info{position:absolute;bottom:18px;left:18px;z-index:2;color:#fff}
+.cat-info h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:400;margin-bottom:3px}
+.cat-info span{font-size:.58rem;color:var(--gold-light);letter-spacing:.2em;text-transform:uppercase}
+
+/* PRODUCTS */
+.products{background:var(--bg-warm)}
+.product-filters{display:flex;justify-content:center;gap:8px;margin-bottom:45px;flex-wrap:wrap}
+.filter-btn{padding:9px 22px;border:1px solid var(--border);background:var(--bg);color:var(--text-light);font-family:'Jost',sans-serif;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .3s;border-radius:20px}
+.filter-btn:hover,.filter-btn.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;max-width:1400px;margin:0 auto}
+.p-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:all .4s;position:relative}
+.p-card:hover{border-color:var(--gold-light);transform:translateY(-5px);box-shadow:var(--shadow-hover)}
+.p-badge{position:absolute;top:12px;left:12px;z-index:3;padding:4px 12px;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;border-radius:3px}
+.p-badge.new{background:var(--gold);color:#fff}
+.p-badge.sale{background:var(--red);color:#fff}
+.p-badge.best{background:var(--green);color:#fff}
+.p-img{height:260px;overflow:hidden;position:relative;background:var(--bg-cream)}
+.p-img img{width:100%;height:100%;object-fit:cover;transition:transform .8s}
+.p-card:hover .p-img img{transform:scale(1.05)}
+.p-actions{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:6px;opacity:0;transform:translateX(10px);transition:all .4s}
+.p-card:hover .p-actions{opacity:1;transform:translateX(0)}
+.p-action-btn{width:34px;height:34px;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-light);font-size:.75rem;transition:all .3s;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.p-action-btn:hover{background:var(--gold);color:#fff;border-color:var(--gold)}
+.p-body{padding:18px}
+.p-cat{font-size:.55rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.p-name{font-size:.85rem;font-weight:400;margin-bottom:8px;line-height:1.4;color:var(--text)}
+/* COLOR SWATCHES */
+.p-colors{display:flex;gap:5px;margin-bottom:10px;align-items:center;flex-wrap:wrap}
+.color-swatch{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);cursor:pointer;transition:all .25s;position:relative}
+.color-swatch:hover,.color-swatch.active{border-color:var(--gold);transform:scale(1.25);box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.color-swatch .tooltip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:3px 8px;border-radius:3px;font-size:.55rem;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;letter-spacing:.05em}
+.color-swatch .tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--text)}
+.color-swatch:hover .tooltip{opacity:1}
+.p-price{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.p-price .current{font-size:1.05rem;font-weight:600;color:var(--gold-dark)}
+.p-price .old{font-size:.75rem;color:var(--text-lighter);text-decoration:line-through}
+.p-price .discount{font-size:.55rem;background:var(--red);color:#fff;padding:2px 6px;border-radius:2px;font-weight:600}
+.p-installment{font-size:.63rem;color:var(--text-lighter);margin-bottom:8px}
+.p-installment strong{color:var(--gold-dark)}
+.p-stars{display:flex;align-items:center;gap:4px;font-size:.68rem}
+.p-stars .stars{color:var(--gold);letter-spacing:1px}
+.p-stars .count{color:var(--text-lighter);font-size:.6rem}
+.p-features{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.p-feat{font-size:.52rem;padding:3px 7px;border:1px solid var(--border);color:var(--text-lighter);border-radius:3px;letter-spacing:.03em}
+.load-more-wrap{text-align:center;margin-top:45px}
+.load-more{padding:14px 55px;border:1.5px solid var(--gold);background:transparent;color:var(--gold-dark);font-family:'Jost',sans-serif;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .4s;border-radius:3px}
+.load-more:hover{background:var(--gold);color:#fff}
+
+/* BESTSELLERS - wide section with women mirror images */
+.bestsellers{background:var(--bg);overflow:hidden}
+.best-scroll{display:flex;gap:25px;max-width:1400px;margin:0 auto;overflow-x:auto;padding:10px 0 30px;scrollbar-width:none;-ms-overflow-style:none}
+.best-scroll::-webkit-scrollbar{display:none}
+.best-card{min-width:320px;max-width:320px;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);transition:all .4s;flex-shrink:0;background:var(--bg)}
+.best-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-hover)}
+.best-img{height:380px;overflow:hidden;position:relative}
+.best-img img{width:100%;height:100%;object-fit:cover;transition:transform 1s}
+.best-card:hover .best-img img{transform:scale(1.05)}
+.best-img .best-tag{position:absolute;top:14px;left:14px;background:var(--gold);color:#fff;padding:5px 14px;font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;font-weight:600;border-radius:3px}
+.best-body{padding:22px}
+.best-body h3{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:400;margin-bottom:6px}
+.best-body .price{font-size:1.1rem;font-weight:600;color:var(--gold-dark);margin-bottom:4px}
+.best-body .inst{font-size:.63rem;color:var(--text-lighter)}
+.best-body .inst strong{color:var(--gold-dark)}
+
+/* SERVICES */
+.services{background:var(--bg-warm)}
+.services-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1300px;margin:0 auto}
+.service-card{padding:35px 25px;border:1px solid var(--border);background:var(--bg);border-radius:10px;text-align:center;transition:all .4s}
+.service-card:hover{border-color:var(--gold-light);transform:translateY(-4px);box-shadow:var(--shadow-hover)}
+.service-icon{font-size:2rem;margin-bottom:18px;display:block}
+.service-card h3{font-size:.85rem;font-weight:500;color:var(--text);margin-bottom:8px}
+.service-card p{font-size:.75rem;color:var(--text-lighter);line-height:1.7;font-weight:300}
+
+/* INSTALLMENT */
+.installment-banner{background:linear-gradient(135deg,var(--gold-dark),var(--gold),var(--gold-light));padding:55px 50px}
+.installment-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:35px;flex-wrap:wrap}
+.installment-text h2{font-family:'Playfair Display',serif;font-size:2rem;font-weight:400;color:#fff;margin-bottom:6px}
+.installment-text p{font-size:.85rem;color:rgba(255,255,255,.8);font-weight:300}
+.installment-cards{display:flex;gap:10px;flex-wrap:wrap}
+.bank-card{padding:10px 18px;background:rgba(255,255,255,.95);border-radius:6px;font-size:.68rem;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;box-shadow:0 3px 12px rgba(0,0,0,.08)}
+.bank-card .months{color:var(--gold-dark);font-weight:700}
+
+/* SHOWCASE */
+.showcase{background:var(--bg)}
+.showcase-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:1400px;margin:0 auto}
+.showcase-item{position:relative;overflow:hidden;cursor:pointer;aspect-ratio:1;border-radius:8px}
+.showcase-item.wide{grid-column:span 2}
+.showcase-item.tall{grid-row:span 2}
+.showcase-item img{width:100%;height:100%;object-fit:cover;transition:transform 1s;filter:brightness(.88)}
+.showcase-item:hover img{transform:scale(1.05);filter:brightness(.65)}
+.showcase-item::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.7)100%);border-radius:8px}
+.showcase-label{position:absolute;bottom:16px;left:16px;z-index:2;color:#fff}
+.showcase-label span{font-size:.52rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-light)}
+.showcase-label h4{font-family:'Playfair Display',serif;font-size:1rem;font-weight:400}
+
+/* BLOG */
+.blog{background:var(--bg-warm)}
+.blog-toolbar{display:flex;justify-content:space-between;align-items:center;max-width:1300px;margin:0 auto 30px;gap:15px;flex-wrap:wrap}
+.blog-search{display:flex;gap:8px;flex:1;max-width:400px}
+.blog-search input{flex:1;padding:10px 18px;border:1.5px solid var(--border);border-radius:25px;font-family:'Jost',sans-serif;font-size:.8rem;outline:none;transition:border-color .3s;background:var(--bg);color:var(--text)}
+.blog-search input:focus{border-color:var(--gold)}
+.blog-search input::placeholder{color:var(--text-lighter)}
+.blog-filters{display:flex;gap:6px;flex-wrap:wrap}
+.blog-filter-btn{padding:7px 18px;border:1px solid var(--border);background:var(--bg);color:var(--text-lighter);font-family:'Jost',sans-serif;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .3s;border-radius:18px}
+.blog-filter-btn:hover,.blog-filter-btn.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+.blog-count{text-align:center;max-width:1300px;margin:0 auto 20px;font-size:.72rem;color:var(--text-lighter)}
+.blog-count strong{color:var(--gold-dark)}
+.blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;max-width:1300px;margin:0 auto}
+.blog-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:all .4s}
+.blog-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover)}
+.blog-img{height:200px;overflow:hidden;position:relative}
+.blog-img img{width:100%;height:100%;object-fit:cover;transition:transform .8s}
+.blog-card:hover .blog-img img{transform:scale(1.05)}
+.blog-img .blog-cat-tag{position:absolute;top:12px;left:12px;background:var(--gold);color:#fff;padding:4px 12px;font-size:.52rem;letter-spacing:.15em;text-transform:uppercase;font-weight:600;border-radius:3px}
+.blog-body{padding:20px}
+.blog-meta{display:flex;gap:12px;margin-bottom:8px;font-size:.55rem;color:var(--text-lighter);letter-spacing:.08em;text-transform:uppercase}
+.blog-body h3{font-family:'Playfair Display',serif;font-size:.98rem;font-weight:400;color:var(--text);margin-bottom:6px;line-height:1.4}
+.blog-body p{font-size:.74rem;color:var(--text-lighter);line-height:1.7;font-weight:300;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.blog-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.blog-tag{font-size:.5rem;padding:2px 8px;border:1px solid var(--border);border-radius:10px;color:var(--text-lighter);letter-spacing:.05em}
+.blog-link{font-size:.6rem;color:var(--gold-dark);letter-spacing:.18em;text-transform:uppercase;font-weight:500}
+.blog-load-wrap{text-align:center;margin-top:40px;max-width:1300px;margin-left:auto;margin-right:auto}
+.blog-load{padding:13px 50px;border:1.5px solid var(--gold);background:transparent;color:var(--gold-dark);font-family:'Jost',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:all .4s;border-radius:3px}
+.blog-load:hover{background:var(--gold);color:#fff}
+
+/* STATS */
+.stats-section{background:var(--bg);padding:70px 50px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:30px;max-width:1200px;margin:0 auto;text-align:center}
+.stat-item .number{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:400;color:var(--gold-dark);line-height:1}
+.stat-item .label{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-lighter);margin-top:6px}
+
+/* SCROLLING REVIEWS */
+.reviews-section{background:var(--bg-cream);padding:70px 0;overflow:hidden}
+.reviews-section .section-header{padding:0 50px}
+.reviews-track-wrapper{position:relative;overflow:hidden;padding:20px 0}
+.reviews-track{display:flex;gap:20px;animation:reviewScroll 60s linear infinite;width:max-content}
+.reviews-track:hover{animation-play-state:paused}
+.review-card{min-width:340px;max-width:340px;padding:28px;background:var(--bg);border:1px solid var(--border);border-radius:10px;flex-shrink:0;box-shadow:var(--shadow)}
+.review-card .stars{color:var(--gold);font-size:.65rem;letter-spacing:3px;margin-bottom:12px}
+.review-card .text{font-size:.8rem;color:var(--text-light);font-weight:300;line-height:1.8;margin-bottom:18px;font-style:italic}
+.review-card .author{display:flex;align-items:center;gap:12px}
+.review-card .avatar{width:40px;height:40px;border:1.5px solid var(--gold-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--gold-dark);background:var(--bg-cream);font-weight:500}
+.review-card .name{font-size:.78rem;font-weight:500;color:var(--text)}
+.review-card .loc{font-size:.65rem;color:var(--text-lighter);font-weight:300}
+@keyframes reviewScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* FAQ */
+.faq{background:var(--bg)}
+.faq-list{max-width:800px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-q{padding:20px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:.88rem;font-weight:400;color:var(--text);transition:color .3s}
+.faq-q:hover{color:var(--gold-dark)}
+.faq-q::after{content:'+';font-size:1.2rem;color:var(--gold);transition:transform .3s;font-weight:300}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .5s;font-size:.82rem;color:var(--text-light);line-height:1.8;font-weight:300}
+.faq-item.open .faq-a{max-height:300px;padding-bottom:20px}
+
+/* CTA */
+.cta-section{position:relative;overflow:hidden;text-align:center;background:var(--bg-warm)}
+.cta-bg{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=1920&q=80') center/cover;opacity:.06}
+.cta-content{position:relative;max-width:700px;margin:0 auto}
+.cta-content h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:400;margin-bottom:18px;color:var(--text)}
+.cta-content h2 em{color:var(--gold-dark);font-style:italic}
+.cta-content>p{color:var(--text-light);font-weight:300;line-height:1.9;margin-bottom:35px;font-size:.9rem}
+.cta-form{display:flex;gap:10px;max-width:540px;margin:0 auto 45px}
+.cta-form input{flex:1;padding:14px 20px;background:var(--bg);border:1.5px solid var(--border);color:var(--text);font-family:'Jost',sans-serif;font-size:.85rem;outline:none;transition:all .4s;border-radius:3px}
+.cta-form input:focus{border-color:var(--gold)}
+.cta-form button{padding:14px 32px;background:var(--gold);color:#fff;border:none;font-family:'Jost',sans-serif;font-size:.68rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:all .4s;border-radius:3px}
+.cta-form button:hover{background:var(--gold-dark)}
+.contact-row{display:flex;justify-content:center;gap:55px;padding-top:40px;border-top:1px solid var(--border);flex-wrap:wrap}
+.contact-item .clabel{font-size:.55rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.contact-item .cvalue{font-size:.82rem;color:var(--text-light);font-weight:300}
+.contact-item .cvalue a{color:var(--text-light);transition:color .3s}
+.contact-item .cvalue a:hover{color:var(--gold-dark)}
+
+/* SEO */
+.seo-content{background:var(--bg-cream);padding:70px 50px}
+.seo-inner{max-width:1000px;margin:0 auto;columns:2;column-gap:50px}
+.seo-inner h2{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:400;margin-bottom:12px;color:var(--text);column-span:all}
+.seo-inner h3{font-size:.9rem;font-weight:500;margin:16px 0 6px;color:var(--gold-dark)}
+.seo-inner p{font-size:.78rem;color:var(--text-light);line-height:1.9;font-weight:300;margin-bottom:10px}
+
+/* FOOTER */
+footer{background:var(--text);padding:70px 50px 35px;color:rgba(255,255,255,.7)}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:40px;max-width:1300px;margin:0 auto 55px}
+.footer-brand .logo{font-family:'Playfair Display',serif;font-size:1.2rem;letter-spacing:.3em;color:var(--gold-light);text-transform:uppercase;margin-bottom:12px}
+.footer-brand>p{font-size:.75rem;color:rgba(255,255,255,.4);font-weight:300;line-height:1.8;margin-bottom:18px}
+.footer-socials{display:flex;gap:8px}
+.footer-socials a{width:32px;height:32px;border:1px solid rgba(255,255,255,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-size:.65rem;transition:all .3s}
+.footer-socials a:hover{border-color:var(--gold);color:var(--gold)}
+.footer-col h4{font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-light);margin-bottom:20px}
+.footer-col a{display:block;color:rgba(255,255,255,.4);font-size:.75rem;font-weight:300;margin-bottom:10px;transition:all .3s}
+.footer-col a:hover{color:var(--gold-light);padding-left:3px}
+.footer-bottom{max-width:1300px;margin:0 auto;padding-top:25px;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-bottom p{font-size:.65rem;color:rgba(255,255,255,.3);font-weight:300}
+.footer-payments{display:flex;gap:8px;align-items:center}
+.footer-payments span{padding:4px 10px;border:1px solid rgba(255,255,255,.08);font-size:.55rem;color:rgba(255,255,255,.4);border-radius:3px}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(35px);transition:opacity .8s,transform .8s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  section{padding:70px 30px}
+  .cat-grid{grid-template-columns:repeat(3,1fr)}
+  .products-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+  .services-grid{grid-template-columns:repeat(2,1fr)}
+  .showcase-grid{grid-template-columns:repeat(2,1fr)}
+  .blog-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-grid{grid-template-columns:repeat(3,1fr)}
+  .footer-grid{grid-template-columns:repeat(3,1fr)}
+  .seo-inner{columns:1}
+}
+@media(max-width:768px){
+  .topbar{gap:15px;padding:7px 15px;font-size:.58rem;flex-wrap:wrap;justify-content:center}
+  nav{padding:12px 16px;top:55px}
+  nav.scrolled{top:0;padding:10px 16px}
+  .nav-center,.nav-phone{display:none}
+  .hamburger{display:flex}
+  section{padding:50px 16px}
+  .hero{margin-top:55px}
+  .hero-content{padding:0 16px}
+  .hero-buttons{flex-direction:column;align-items:center}
+  .hero-features{gap:8px}
+  .hero-feat{font-size:.6rem;padding:6px 12px}
+  .trust-grid{gap:18px}
+  .trust-item{flex:1;min-width:140px}
+  .cat-grid{grid-template-columns:repeat(2,1fr)}
+  .products-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .p-img{height:160px}
+  .p-body{padding:12px}
+  .p-name{font-size:.78rem}
+  .services-grid{grid-template-columns:1fr 1fr}
+  .installment-inner{flex-direction:column;text-align:center}
+  .installment-cards{justify-content:center}
+  .showcase-grid{grid-template-columns:1fr 1fr}
+  .showcase-item.wide,.showcase-item.tall{grid-column:span 1;grid-row:span 1}
+  .blog-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .cta-form{flex-direction:column}
+  .contact-row{flex-direction:column;gap:18px}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .footer-bottom{flex-direction:column;text-align:center}
+}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo"><span class="logo-dot"></span> CUSTOM WEAR</div>
-  <div class="header-badge">Tasarla & Sipariş Ver</div>
-</header>
+<div class="preloader" id="preloader">
+  <div class="preloader-logo">İSTANBUL</div>
+  <div class="preloader-sub">Premium Banyo Tasarımları</div>
+  <div class="preloader-bar"></div>
+</div>
 
-<main>
-  <!-- Preview -->
-  <section class="preview-panel">
-    <div class="preview-container">
-      <div class="preview-canvas-wrap">
-        <canvas id="productCanvas" width="480" height="540"></canvas>
-      </div>
-      <div class="zoom-hint">Fare ile yakınlaştırabilirsiniz</div>
+<!-- TOPBAR -->
+<div class="topbar">
+  <span>🚚 2.000₺ Üzeri Ücretsiz Kargo</span>
+  <span>💳 12 Aya Varan Taksit</span>
+  <span>🔧 Ücretsiz Montaj</span>
+  <span>🔄 14 Gün İade Garantisi</span>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">İstanbul<span>Banyo & Tasarım</span></a>
+  <div class="nav-center">
+    <a href="#kategoriler">Kategoriler</a>
+    <a href="#urunler">Ürünler</a>
+    <a href="#coksatanlar">Çok Satanlar</a>
+    <a href="#hizmetler">Hizmetler</a>
+    <a href="#galeri">Galeri</a>
+    <a href="#blog">Blog</a>
+    <a href="#iletisim">İletişim</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-phone">✆ 0212 123 45 67</span>
+    <div class="nav-icon" title="Favoriler">♡</div>
+    <div class="nav-icon" title="Sepet">🛒</div>
+  </div>
+  <div class="hamburger"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Est. 1999 — Premium Banyo</div>
+    <h1>Banyonuza<br><em>İstanbul</em>'un<br>Zarafetini Katın</h1>
+    <p class="hero-desc">100+ premium model, 12 aya varan taksit imkanı ve ücretsiz montaj ile hayalinizdeki banyoyu gerçeğe dönüştürün.</p>
+    <div class="hero-buttons">
+      <a href="#urunler" class="btn-gold">100+ Ürünü Keşfet</a>
+      <a href="#iletisim" class="btn-outline">Ücretsiz Keşif Randevusu</a>
     </div>
-  </section>
-
-  <!-- Controls -->
-  <aside class="controls-panel">
-
-    <!-- Product Type -->
-    <div>
-      <div class="section-title">Ürün Tipi</div>
-      <div class="product-types">
-        <button class="product-type-btn active" data-type="tshirt" onclick="setProduct('tshirt')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.5 2L2 6.5l3 1.5V20a1 1 0 001 1h12a1 1 0 001-1V8l3-1.5L17.5 2h-4L12 4l-1.5-2h-4z"/></svg>
-          Tişört
-        </button>
-        <button class="product-type-btn" data-type="hat" onclick="setProduct('hat')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 14c0 0 2-2 9-2s9 2 9 2"/><path d="M4 14v2c0 1.1.9 2 2 2h12a2 2 0 002-2v-2"/><path d="M7 14V8a5 5 0 0110 0v6"/><path d="M3 14l-1 3h20l-1-3"/></svg>
-          Şapka
-        </button>
-      </div>
+    <div class="hero-features">
+      <span class="hero-feat"><span class="ic">✓</span> Ücretsiz Kargo</span>
+      <span class="hero-feat"><span class="ic">✓</span> 12 Ay Taksit</span>
+      <span class="hero-feat"><span class="ic">✓</span> 10 Yıl Garanti</span>
+      <span class="hero-feat"><span class="ic">✓</span> Ücretsiz Montaj</span>
     </div>
+  </div>
+</section>
 
-    <!-- Color -->
-    <div>
-      <div class="section-title">Ürün Rengi</div>
-      <div class="color-options" id="colorOptions"></div>
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-grid">
+    <div class="trust-item"><div class="trust-icon">🏆</div><div class="trust-text"><h4>25+ Yıl</h4><p>Sektör tecrübesi</p></div></div>
+    <div class="trust-item"><div class="trust-icon">🚚</div><div class="trust-text"><h4>Ücretsiz Kargo</h4><p>2.000₺ üzeri</p></div></div>
+    <div class="trust-item"><div class="trust-icon">💳</div><div class="trust-text"><h4>12 Ay Taksit</h4><p>Tüm kartlara</p></div></div>
+    <div class="trust-item"><div class="trust-icon">🔧</div><div class="trust-text"><h4>Ücretsiz Montaj</h4><p>81 ilde</p></div></div>
+    <div class="trust-item"><div class="trust-icon">🛡️</div><div class="trust-text"><h4>10 Yıl Garanti</h4><p>Tam güvence</p></div></div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<section class="categories" id="kategoriler">
+  <div class="section-header reveal"><span class="section-label">Kategoriler</span><h2 class="section-title">Banyo Çözümlerimiz</h2><div class="section-divider"></div></div>
+  <div class="cat-grid" id="catGrid"></div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="products" id="urunler">
+  <div class="section-header reveal"><span class="section-label">100+ Premium Model</span><h2 class="section-title">Tüm Ürünler</h2><div class="section-divider"></div><p class="section-subtitle">Her bütçeye ve tarza uygun premium banyo çözümleri. Tüm ürünlerde 12 aya varan taksit.</p></div>
+  <div class="product-filters reveal">
+    <button class="filter-btn active" data-filter="all">Tümü</button>
+    <button class="filter-btn" data-filter="dolap">Banyo Dolapları</button>
+    <button class="filter-btn" data-filter="dusakabin">Duşakabinler</button>
+    <button class="filter-btn" data-filter="ayna">Aynalı Dolaplar</button>
+    <button class="filter-btn" data-filter="lavabo">Lavabo Takımları</button>
+    <button class="filter-btn" data-filter="aksesuar">Aksesuarlar</button>
+    <button class="filter-btn" data-filter="mobilya">Mobilya</button>
+  </div>
+  <div class="products-grid" id="productsGrid"></div>
+  <div class="load-more-wrap reveal"><button class="load-more" id="loadMore">Daha Fazla Ürün Göster</button></div>
+</section>
+
+<!-- BESTSELLERS -->
+<section class="bestsellers" id="coksatanlar">
+  <div class="section-header reveal"><span class="section-label">Çok Satanlar</span><h2 class="section-title">En Çok Tercih Edilen Ürünler</h2><div class="section-divider"></div></div>
+  <div class="best-scroll" id="bestScroll"></div>
+</section>
+
+<!-- SERVICES -->
+<section class="services" id="hizmetler">
+  <div class="section-header reveal"><span class="section-label">Hizmetlerimiz</span><h2 class="section-title">Anahtar Teslim Banyo Çözümleri</h2><div class="section-divider"></div></div>
+  <div class="services-grid">
+    <div class="service-card reveal"><span class="service-icon">📐</span><h3>Ücretsiz Keşif</h3><p>Uzman ekibimiz evinize gelerek banyonuzun ölçülerini alır.</p></div>
+    <div class="service-card reveal"><span class="service-icon">🖥️</span><h3>3D Tasarım</h3><p>Fotorealistik 3D görselleştirme ile banyonuzu önceden görün.</p></div>
+    <div class="service-card reveal"><span class="service-icon">🏭</span><h3>Özel Üretim</h3><p>Alanınıza özel cm bazında hassas ölçü üretimi.</p></div>
+    <div class="service-card reveal"><span class="service-icon">🔧</span><h3>Profesyonel Montaj</h3><p>Deneyimli ekip, 2 yıl montaj garantisi.</p></div>
+    <div class="service-card reveal"><span class="service-icon">🚚</span><h3>Ücretsiz Kargo</h3><p>2.000₺ üzeri siparişlerde Türkiye geneli ücretsiz.</p></div>
+    <div class="service-card reveal"><span class="service-icon">💳</span><h3>12 Ay Taksit</h3><p>Tüm banka kartlarına vade farksız taksit imkanı.</p></div>
+    <div class="service-card reveal"><span class="service-icon">🔄</span><h3>14 Gün İade</h3><p>Koşulsuz iade veya değişim. Kargo bizden.</p></div>
+    <div class="service-card reveal"><span class="service-icon">🛡️</span><h3>10 Yıl Garanti</h3><p>Ömür boyu yedek parça desteği.</p></div>
+  </div>
+</section>
+
+<!-- INSTALLMENT -->
+<div class="installment-banner">
+  <div class="installment-inner">
+    <div class="installment-text"><h2>12 Aya Varan Taksit İmkanı</h2><p>Tüm banka kartlarına geçerli, vade farksız taksit seçenekleri</p></div>
+    <div class="installment-cards">
+      <div class="bank-card">Bonus Card <span class="months">12 Taksit</span></div>
+      <div class="bank-card">Maximum <span class="months">12 Taksit</span></div>
+      <div class="bank-card">World Card <span class="months">9 Taksit</span></div>
+      <div class="bank-card">Axess <span class="months">12 Taksit</span></div>
+      <div class="bank-card">Paraf <span class="months">9 Taksit</span></div>
+      <div class="bank-card">CardFinans <span class="months">6 Taksit</span></div>
     </div>
+  </div>
+</div>
 
-    <!-- Upload -->
-    <div>
-      <div class="section-title">Tasarım Yükle</div>
-      <div class="upload-zone" id="uploadZone">
-        <div class="upload-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9f73d" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        </div>
-        <h3>Görselinizi sürükleyin</h3>
-        <p>veya tıklayıp dosya seçin · PNG, JPG · maks 10MB</p>
-        <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp">
-      </div>
-      <div class="uploaded-preview" id="uploadedPreview">
-        <img class="uploaded-thumb" id="uploadedThumb" src="" alt="">
-        <div class="uploaded-info">
-          <div class="name" id="uploadedName"></div>
-          <div class="size" id="uploadedSize"></div>
-        </div>
-        <button class="remove-btn" onclick="removeDesign()" title="Kaldır">✕</button>
-      </div>
+<!-- SHOWCASE -->
+<section class="showcase" id="galeri">
+  <div class="section-header reveal"><span class="section-label">Galeri</span><h2 class="section-title">Tamamlanan Projelerimiz</h2><div class="section-divider"></div></div>
+  <div class="showcase-grid" id="showcaseGrid"></div>
+</section>
+
+<!-- BLOG -->
+<section class="blog" id="blog">
+  <div class="section-header reveal"><span class="section-label">Blog & Rehber — 200 Makale</span><h2 class="section-title">Banyo İlham Dünyası</h2><div class="section-divider"></div><p class="section-subtitle">Banyo tasarımı, dekorasyon trendleri, alım rehberleri ve pratik ipuçlarıyla banyonuza ilham katın.</p></div>
+  <div class="blog-toolbar reveal">
+    <div class="blog-search"><input type="text" id="blogSearch" placeholder="Blog yazılarında ara..." oninput="filterBlogs()"></div>
+    <div class="blog-filters" id="blogFilters"></div>
+  </div>
+  <div class="blog-count reveal" id="blogCount"></div>
+  <div class="blog-grid" id="blogGrid"></div>
+  <div class="blog-load-wrap reveal"><button class="blog-load" id="blogLoadMore" onclick="loadMoreBlogs()">Daha Fazla Yazı Göster</button></div>
+</section>
+
+<!-- STATS -->
+<div class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-item reveal"><div class="number">15,000+</div><div class="label">Mutlu Müşteri</div></div>
+    <div class="stat-item reveal"><div class="number">25+</div><div class="label">Yıllık Tecrübe</div></div>
+    <div class="stat-item reveal"><div class="number">100+</div><div class="label">Ürün Modeli</div></div>
+    <div class="stat-item reveal"><div class="number">81</div><div class="label">İl'de Hizmet</div></div>
+    <div class="stat-item reveal"><div class="number">50+</div><div class="label">Yetkili Bayi</div></div>
+  </div>
+</div>
+
+<!-- SCROLLING REVIEWS -->
+<div class="reviews-section">
+  <div class="section-header reveal"><span class="section-label">Müşteri Yorumları</span><h2 class="section-title">15.000+ Mutlu Müşteri</h2><div class="section-divider"></div></div>
+  <div class="reviews-track-wrapper"><div class="reviews-track" id="reviewsTrack"></div></div>
+</div>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="section-header reveal"><span class="section-label">SSS</span><h2 class="section-title">Sıkça Sorulan Sorular</h2><div class="section-divider"></div></div>
+  <div class="faq-list" id="faqList"></div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="iletisim">
+  <div class="cta-bg"></div>
+  <div class="cta-content reveal">
+    <span class="section-label">İletişim</span>
+    <h2>Hayalinizdeki <em>Banyoyu</em> Tasarlayalım</h2>
+    <p>Ücretsiz keşif randevusu alın, uzman ekibimiz sizi arasın.</p>
+    <div class="cta-form"><input type="text" placeholder="Adınız Soyadınız"><input type="tel" placeholder="Telefon Numaranız"><button type="button">Bizi Arayın</button></div>
+    <div class="contact-row">
+      <div class="contact-item"><div class="clabel">Telefon</div><div class="cvalue"><a href="tel:+902121234567">0212 123 45 67</a></div></div>
+      <div class="contact-item"><div class="clabel">WhatsApp</div><div class="cvalue"><a href="#">0532 123 45 67</a></div></div>
+      <div class="contact-item"><div class="clabel">E-posta</div><div class="cvalue"><a href="mailto:info@istanbulbanyo.com">info@istanbulbanyo.com</a></div></div>
+      <div class="contact-item"><div class="clabel">Showroom</div><div class="cvalue">Maslak, İstanbul</div></div>
     </div>
+  </div>
+</section>
 
-    <!-- Size / Position -->
-    <div>
-      <div class="section-title">Boyut & Konum</div>
-      <div class="slider-group">
-        <div class="slider-row">
-          <span class="slider-label">Boyut</span>
-          <input type="range" id="sizeSlider" min="20" max="100" value="60" oninput="updatePreview()">
-          <span class="slider-value" id="sizeVal">60%</span>
-        </div>
-        <div class="slider-row">
-          <span class="slider-label">Dikey</span>
-          <input type="range" id="ySlider" min="0" max="100" value="50" oninput="updatePreview()">
-          <span class="slider-value" id="yVal">50%</span>
-        </div>
-      </div>
+<!-- SEO -->
+<div class="seo-content">
+  <div class="seo-inner">
+    <h2>İstanbul Banyo - Türkiye'nin Premium Banyo Markası</h2>
+    <p>İstanbul Banyo, 1999 yılından bu yana premium banyo dolapları, duşakabinler, aynalı dolaplar, lavabo takımları ve banyo aksesuarları üretmektedir. 81 ilde 50'den fazla yetkili bayi ile hizmet vermektedir.</p>
+    <h3>Banyo Dolabı Modelleri</h3>
+    <p>Modern, klasik, rustik ve minimalist tarzlarda 50'den fazla banyo dolabı modeli. Mat lake, parlak lake, doğal meşe, ceviz kaplama ve mermer tezgah seçenekleri. Neme dayanıklı MDF, soft-close menteşe ve Alman ray sistemi.</p>
+    <h3>Duşakabin Modelleri</h3>
+    <p>8mm ve 10mm temperli cam, paslanmaz çelik profiller, nano kaplama teknolojisi. Köşe giriş, düz panel, walk-in ve küvet üstü modelleri.</p>
+    <h3>Taksit ve Ödeme</h3>
+    <p>Bonus Card, Maximum, World, Axess, Paraf ve CardFinans kartlarına 12 aya varan vade farksız taksit. 2.000₺ üzeri ücretsiz kargo, ücretsiz montaj ve 10 yıl garanti.</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo">İSTANBUL BANYO</div>
+      <p>İstanbul'un estetiğinden ilham alan premium banyo çözümleri. 25 yılı aşkın deneyim, 100+ model, 81 ilde hizmet.</p>
+      <div class="footer-socials"><a href="#">IG</a><a href="#">FB</a><a href="#">YT</a><a href="#">PI</a><a href="#">TW</a></div>
     </div>
-
-    <!-- Price & CTA -->
-    <div class="price-section">
-      <div class="price-row">
-        <span class="price-label">Toplam fiyat</span>
-        <span class="price-value" id="priceDisplay">₺349 <span>TL</span></span>
-      </div>
-      <button class="cta-btn" id="ctaBtn" disabled>
-        Sepete Ekle →
-      </button>
-      <p class="cta-sub">Ücretsiz kargo · 3-5 iş günü teslimat</p>
-    </div>
-
-  </aside>
-</main>
+    <div class="footer-col"><h4>Ürünler</h4><a href="#">Banyo Dolapları</a><a href="#">Duşakabinler</a><a href="#">Aynalı Dolaplar</a><a href="#">Lavabo Takımları</a><a href="#">Aksesuarlar</a><a href="#">Mobilya</a><a href="#">Bataryalar</a></div>
+    <div class="footer-col"><h4>Hizmetler</h4><a href="#">Ücretsiz Keşif</a><a href="#">3D Tasarım</a><a href="#">Özel Üretim</a><a href="#">Montaj</a><a href="#">Taksit</a><a href="#">İade</a><a href="#">Garanti</a></div>
+    <div class="footer-col"><h4>Kurumsal</h4><a href="#">Hakkımızda</a><a href="#">Bayilik</a><a href="#">Kariyer</a><a href="#">Blog</a><a href="#">Basın</a><a href="#">KVKK</a></div>
+    <div class="footer-col"><h4>İletişim</h4><a href="#">0212 123 45 67</a><a href="#">WhatsApp</a><a href="#">info@istanbulbanyo.com</a><a href="#">Maslak, İstanbul</a><a href="#">Pzt-Cmt: 09-19</a></div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 İstanbul Banyo. Tüm hakları saklıdır.</p>
+    <div class="footer-payments"><span>Visa</span><span>MC</span><span>Troy</span><span>Bonus</span><span>Maximum</span><span>Axess</span><span>World</span><span>Paraf</span></div>
+  </div>
+</footer>
 
 <script>
-// ─── State ───
-const state = {
-  product: 'tshirt',
-  color: '#1a1a2e',
-  designImg: null,
-  size: 60,
-  yPos: 50,
-};
+// Preloader - hide quickly, don't wait for images
+function hidePreloader(){document.getElementById('preloader').classList.add('hidden')}
+if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(hidePreloader,1500)}
+else{document.addEventListener('DOMContentLoaded',()=>setTimeout(hidePreloader,1500))}
+setTimeout(hidePreloader,3000); // absolute fallback
+// Nav scroll
+window.addEventListener('scroll',()=>document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>50));
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'})}));
+// Reveal
+const rObs=new IntersectionObserver(e=>e.forEach(en=>{if(en.isIntersecting){en.target.classList.add('visible');rObs.unobserve(en.target)}}),{threshold:.06});
+document.querySelectorAll('.reveal').forEach(el=>rObs.observe(el));
 
-const colors = {
-  tshirt: [
-    { hex: '#1a1a2e', name: 'Siyah' },
-    { hex: '#f5f5f0', name: 'Beyaz' },
-    { hex: '#2d4a3e', name: 'Orman' },
-    { hex: '#4a2d2d', name: 'Bordo' },
-    { hex: '#2d3a4a', name: 'Lacivert' },
-    { hex: '#c8b89a', name: 'Bej' },
-    { hex: '#6b5b73', name: 'Mor' },
-  ],
-  hat: [
-    { hex: '#1a1a2e', name: 'Siyah' },
-    { hex: '#f5f5f0', name: 'Beyaz' },
-    { hex: '#2d3a4a', name: 'Lacivert' },
-    { hex: '#4a2d2d', name: 'Bordo' },
-    { hex: '#3a6b4a', name: 'Yeşil' },
-    { hex: '#c8b89a', name: 'Bej' },
-  ]
-};
+// --- DATA ---
+const bathroomImgs=['photo-1584622650111-993a426fbf0a','photo-1600566753376-12c8ab7fb75b','photo-1600566752355-35792bedcfea','photo-1600607687644-aac4c3eac7f4','photo-1600607687920-4e2a09cf159d','photo-1631679706909-1844bbd07221','photo-1600585154340-be6161a56a0c','photo-1600573472592-401b489a3cdc','photo-1507652313519-d4e9174996dd','photo-1600607687939-ce8a6c25118c','photo-1552321554-5fefe8c9ef14','photo-1600566753190-17f0baa2a6c3'];
+function bImg(i){return`https://images.unsplash.com/${bathroomImgs[i%bathroomImgs.length]}?w=500&q=75&auto=format`}
+// Woman in mirror images for bestsellers
+const womanMirrorImgs=[
+  'photo-1616394584738-fc6e612e71b9','photo-1570172619644-dfd03ed5d881','photo-1596755389378-c31d21fd1273',
+  'photo-1522337360788-8b13dee7a37e','photo-1512361436605-a484bdb34b5f','photo-1494790108377-be9c29b29330',
+  'photo-1531746020798-e6953c6e8e04','photo-1515886657613-9f3515b0c78f','photo-1524504388940-b1c1722653e1','photo-1542596768-5d1d21f1cf98'
+];
+function wmImg(i){return`https://images.unsplash.com/${womanMirrorImgs[i%womanMirrorImgs.length]}?w=600&q=80&auto=format&fit=crop&crop=face`}
 
-const prices = { tshirt: 349, hat: 399 };
+// Color palette DB
+const colorDB=[
+  {hex:'#FFFFFF',name:'Beyaz'},{hex:'#F5F0EB',name:'Krem'},{hex:'#E8D5B7',name:'Bej'},
+  {hex:'#C9A96E',name:'Altın Meşe'},{hex:'#8B7355',name:'Ceviz'},{hex:'#5C4033',name:'Koyu Ceviz'},
+  {hex:'#2C2C2C',name:'Antrasit'},{hex:'#1A1A1A',name:'Siyah'},{hex:'#4A6741',name:'Koyu Yeşil'},
+  {hex:'#3B5998',name:'Lacivert'},{hex:'#8B0000',name:'Bordo'},{hex:'#D4B896',name:'Kum Beji'},
+  {hex:'#A0A0A0',name:'Gri'},{hex:'#C0C0C0',name:'Gümüş'},{hex:'#DEB887',name:'Doğal Meşe'},
+  {hex:'#F0E68C',name:'Açık Meşe'},{hex:'#708090',name:'Füme'},{hex:'#E6E0D4',name:'Taş Gri'},
+  {hex:'#B8860B',name:'Altın'},{hex:'#556B2F',name:'Haki'}
+];
 
-const canvas = document.getElementById('productCanvas');
-const ctx = canvas.getContext('2d');
-
-// ─── Init ───
-function init() {
-  renderColors();
-  updatePreview();
+function getRandomColors(n){
+  const shuffled=[...colorDB].sort(()=>Math.random()-.5);
+  return shuffled.slice(0,n);
 }
 
-// ─── Product switcher ───
-function setProduct(type) {
-  state.product = type;
-  state.color = colors[type][0].hex;
-  document.querySelectorAll('.product-type-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.type === type);
-  });
-  document.getElementById('priceDisplay').innerHTML = `₺${prices[type]} <span>TL</span>`;
-  renderColors();
-  updatePreview();
-}
+// Categories
+const categories=[
+  {name:'Banyo Dolapları',count:'52 Ürün',cat:'dolap'},
+  {name:'Duşakabinler',count:'24 Ürün',cat:'dusakabin'},
+  {name:'Aynalı Dolaplar',count:'18 Ürün',cat:'ayna'},
+  {name:'Lavabo Takımları',count:'15 Ürün',cat:'lavabo'},
+  {name:'Aksesuarlar',count:'20 Ürün',cat:'aksesuar'},
+  {name:'Banyo Mobilyası',count:'12 Ürün',cat:'mobilya'}
+];
+document.getElementById('catGrid').innerHTML=categories.map((c,i)=>`<div class="cat-card reveal"><img src="${bImg(i)}" alt="${c.name}" loading="lazy"><div class="cat-info"><h3>${c.name}</h3><span>${c.count}</span></div></div>`).join('');
 
-// ─── Colors ───
-function renderColors() {
-  const container = document.getElementById('colorOptions');
-  container.innerHTML = '';
-  colors[state.product].forEach((c, i) => {
-    const swatch = document.createElement('div');
-    swatch.className = 'color-swatch' + (c.hex === state.color ? ' active' : '');
-    swatch.style.background = c.hex;
-    if (c.hex === '#f5f5f0') swatch.style.border = '3px solid #333';
-    swatch.title = c.name;
-    swatch.onclick = () => {
-      state.color = c.hex;
-      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-      swatch.classList.add('active');
-      updatePreview();
-    };
-    container.appendChild(swatch);
-  });
-}
-
-// ─── Upload ───
-const uploadZone = document.getElementById('uploadZone');
-const fileInput = document.getElementById('fileInput');
-
-uploadZone.addEventListener('click', () => fileInput.click());
-uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
-uploadZone.addEventListener('drop', e => {
-  e.preventDefault();
-  uploadZone.classList.remove('dragover');
-  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
-
-function handleFile(file) {
-  if (file.size > 10 * 1024 * 1024) { alert('Dosya boyutu 10MB\'ı aşamaz.'); return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      state.designImg = img;
-      showUploadedPreview(file, e.target.result);
-      document.getElementById('ctaBtn').disabled = false;
-      updatePreview();
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function showUploadedPreview(file, src) {
-  uploadZone.style.display = 'none';
-  const prev = document.getElementById('uploadedPreview');
-  prev.classList.add('show');
-  document.getElementById('uploadedThumb').src = src;
-  document.getElementById('uploadedName').textContent = file.name;
-  document.getElementById('uploadedSize').textContent = (file.size / 1024).toFixed(0) + ' KB';
-}
-
-function removeDesign() {
-  state.designImg = null;
-  uploadZone.style.display = '';
-  document.getElementById('uploadedPreview').classList.remove('show');
-  document.getElementById('ctaBtn').disabled = true;
-  fileInput.value = '';
-  updatePreview();
-}
-
-// ─── Drawing ───
-function updatePreview() {
-  state.size = +document.getElementById('sizeSlider').value;
-  state.yPos = +document.getElementById('ySlider').value;
-  document.getElementById('sizeVal').textContent = state.size + '%';
-  document.getElementById('yVal').textContent = state.yPos + '%';
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  if (state.product === 'tshirt') drawTshirt();
-  else drawHat();
-}
-
-function drawTshirt() {
-  const w = canvas.width, h = canvas.height;
-  const c = state.color;
-
-  ctx.save();
-
-  // Shadow
-  ctx.shadowColor = 'rgba(0,0,0,0.3)';
-  ctx.shadowBlur = 40;
-  ctx.shadowOffsetY = 15;
-
-  // T-shirt shape
-  ctx.beginPath();
-  ctx.moveTo(130, 60);   // left shoulder inner
-  ctx.lineTo(50, 85);    // left sleeve top
-  ctx.lineTo(20, 170);   // left sleeve outer
-  ctx.lineTo(80, 190);   // left sleeve bottom
-  ctx.lineTo(100, 140);  // left armpit
-  ctx.lineTo(100, 490);  // left bottom
-  ctx.lineTo(380, 490);  // bottom
-  ctx.lineTo(380, 140);  // right armpit
-  ctx.lineTo(400, 190);  // right sleeve bottom
-  ctx.lineTo(460, 170);  // right sleeve outer
-  ctx.lineTo(430, 85);   // right sleeve top
-  ctx.lineTo(350, 60);   // right shoulder inner
-
-  // Collar curve
-  ctx.quadraticCurveTo(310, 40, 280, 38);
-  ctx.quadraticCurveTo(240, 32, 200, 38);
-  ctx.quadraticCurveTo(170, 40, 130, 60);
-
-  ctx.closePath();
-
-  // Fill
-  ctx.fillStyle = c;
-  ctx.fill();
-
-  ctx.shadowColor = 'transparent';
-
-  // Collar detail
-  ctx.beginPath();
-  ctx.moveTo(140, 62);
-  ctx.quadraticCurveTo(240, 28, 340, 62);
-  ctx.quadraticCurveTo(240, 80, 140, 62);
-  ctx.closePath();
-  const isLight = isLightColor(c);
-  ctx.fillStyle = isLight ? darken(c, 0.08) : lighten(c, 0.06);
-  ctx.fill();
-
-  // Stitching lines (subtle)
-  ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.04)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([4, 4]);
-  ctx.beginPath();
-  ctx.moveTo(100, 490);
-  ctx.lineTo(380, 490);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  ctx.restore();
-
-  // Design area (chest)
-  if (state.designImg) {
-    const printAreaW = 200 * (state.size / 100);
-    const printAreaH = (state.designImg.height / state.designImg.width) * printAreaW;
-    const maxH = 250 * (state.size / 100);
-    const finalH = Math.min(printAreaH, maxH);
-    const finalW = (finalH === maxH) ? (state.designImg.width / state.designImg.height) * finalH : printAreaW;
-
-    const cx = 240;
-    const yMin = 110;
-    const yMax = 420 - finalH;
-    const cy = yMin + (yMax - yMin) * (state.yPos / 100);
-
-    ctx.save();
-    ctx.globalAlpha = 0.92;
-    // Blend mode for fabric feel
-    if (c !== '#f5f5f0') ctx.globalCompositeOperation = 'screen';
-    ctx.drawImage(state.designImg, cx - finalW / 2, cy, finalW, finalH);
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = 0.88;
-    ctx.drawImage(state.designImg, cx - finalW / 2, cy, finalW, finalH);
-    ctx.restore();
+// 100 Products
+const catNames={dolap:'Banyo Dolabı',dusakabin:'Duşakabin',ayna:'Aynalı Dolap',lavabo:'Lavabo Takımı',aksesuar:'Aksesuar',mobilya:'Banyo Mobilyası'};
+const seriesNames={dolap:['Eleganza','Milano','Verona','Toscana','Napoli','Roma','Firenze','Venezia','Capri','Torino','Modena','Parma','Siena','Bologna','Genova','Pisa','Palermo','Rimini','Perugia','Amalfi','Sorrento','Ravenna','Lecce','Bergamo','Padova','Lucca','Trento','Brescia','Bari','Como'],dusakabin:['Cristallo','Diamond','Prism','Aqua','Crystal','Nova','Pure','Zen','Elite','Royal','Infinity','Luxe','Opal','Pearl','Sapphire','Emerald','Ruby','Onyx','Topaz','Jade'],ayna:['Luminosa','Specchio','Riflesso','Luce','Aurora','Stella','Luna','Sole','Brillante','Chiaro','Nitido','Vivido','Terso','Lucido','Splendido'],lavabo:['Fontana','Cascata','Acqua','Onda','Riviera','Oceano','Lago','Fiume','Sorgente','Marina','Torrente','Ruscello'],aksesuar:['Dettaglio','Raffinato','Sublime','Perfetto','Fino','Elegante','Classico','Moderno','Prezioso','Lusso','Squisito','Regale','Maestoso'],mobilya:['Armonia','Comfort','Serenita','Natura','Essenza','Vivere','Stile','Forma','Lusso','Opera','Grazia','Dolce']};
+const badges=['new','sale','best',''];
+const feats=[['Soft-Close','LED'],['10mm Cam','Nano'],['Meşe','Lake'],['Mermer','PVC'],['Push-Open','Ray'],['Paslanmaz','Anti-Bac']];
+const allProducts=[];
+const catKeys=Object.keys(catNames);
+let pid=0;
+catKeys.forEach(cat=>{
+  const count=cat==='dolap'?30:cat==='dusakabin'?20:cat==='ayna'?15:cat==='lavabo'?12:cat==='aksesuar'?13:10;
+  for(let i=0;i<count;i++){
+    const series=seriesNames[cat][i%seriesNames[cat].length];
+    const sizes=['60cm','80cm','100cm','120cm','150cm'];
+    const size=sizes[i%sizes.length];
+    const baseP=cat==='dolap'?[4500,22000]:cat==='dusakabin'?[3500,18000]:cat==='ayna'?[1800,8000]:cat==='lavabo'?[2200,12000]:cat==='aksesuar'?[250,3500]:[3000,15000];
+    const price=Math.round((baseP[0]+Math.random()*(baseP[1]-baseP[0]))/100)*100;
+    const hasDisc=Math.random()>.6;
+    const disc=hasDisc?Math.round(10+Math.random()*30):0;
+    const oldP=hasDisc?Math.round(price/(1-disc/100)/100)*100:0;
+    const badge=i<2?badges[i%3]:Math.random()>.75?badges[Math.floor(Math.random()*3)]:'';
+    const rating=(4+Math.random()).toFixed(1);
+    const reviews=Math.floor(5+Math.random()*120);
+    const ft=feats[i%feats.length];
+    const inst=Math.round(price/12);
+    const colors=getRandomColors(3+Math.floor(Math.random()*4));
+    allProducts.push({id:pid++,cat,series,size,price,oldPrice:oldP,discount:disc,badge,rating,reviews,feat:ft,installment:inst,imgIdx:i,colors});
   }
-}
-
-function drawHat() {
-  const w = canvas.width, h = canvas.height;
-  const c = state.color;
-
-  ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,0.35)';
-  ctx.shadowBlur = 40;
-  ctx.shadowOffsetY = 10;
-
-  // Visor
-  ctx.beginPath();
-  ctx.moveTo(70, 310);
-  ctx.quadraticCurveTo(100, 370, 240, 380);
-  ctx.quadraticCurveTo(380, 370, 420, 310);
-  ctx.quadraticCurveTo(390, 340, 240, 350);
-  ctx.quadraticCurveTo(110, 340, 70, 310);
-  ctx.closePath();
-  const isLight = isLightColor(c);
-  ctx.fillStyle = isLight ? darken(c, 0.12) : darken(c, 0.25);
-  ctx.fill();
-
-  // Main crown
-  ctx.beginPath();
-  ctx.moveTo(80, 310);
-  ctx.quadraticCurveTo(80, 130, 180, 100);
-  ctx.quadraticCurveTo(240, 85, 300, 100);
-  ctx.quadraticCurveTo(400, 130, 410, 310);
-  ctx.quadraticCurveTo(350, 320, 240, 325);
-  ctx.quadraticCurveTo(140, 320, 80, 310);
-  ctx.closePath();
-  ctx.fillStyle = c;
-  ctx.fill();
-
-  ctx.shadowColor = 'transparent';
-
-  // Center seam
-  ctx.beginPath();
-  ctx.moveTo(240, 92);
-  ctx.lineTo(240, 320);
-  ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.06)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  // Button on top
-  ctx.beginPath();
-  ctx.arc(240, 96, 7, 0, Math.PI * 2);
-  ctx.fillStyle = isLight ? darken(c, 0.1) : lighten(c, 0.1);
-  ctx.fill();
-
-  // Brim edge highlight
-  ctx.beginPath();
-  ctx.moveTo(80, 310);
-  ctx.quadraticCurveTo(160, 325, 240, 328);
-  ctx.quadraticCurveTo(330, 325, 410, 310);
-  ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.06)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  ctx.restore();
-
-  // Design on front panel
-  if (state.designImg) {
-    const maxPrintW = 160 * (state.size / 100);
-    const maxPrintH = 110 * (state.size / 100);
-    const imgRatio = state.designImg.width / state.designImg.height;
-
-    let dw, dh;
-    if (imgRatio > maxPrintW / maxPrintH) {
-      dw = maxPrintW;
-      dh = dw / imgRatio;
-    } else {
-      dh = maxPrintH;
-      dw = dh * imgRatio;
-    }
-
-    const cx = 240;
-    const yMin = 130;
-    const yMax = 280 - dh;
-    const cy = yMin + (yMax - yMin) * (state.yPos / 100);
-
-    ctx.save();
-    ctx.globalAlpha = 0.9;
-    if (c !== '#f5f5f0') ctx.globalCompositeOperation = 'screen';
-    ctx.drawImage(state.designImg, cx - dw / 2, cy, dw, dh);
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = 0.85;
-    ctx.drawImage(state.designImg, cx - dw / 2, cy, dw, dh);
-    ctx.restore();
-  }
-}
-
-// ─── Helpers ───
-function isLightColor(hex) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return (r * 299 + g * 587 + b * 114) / 1000 > 128;
-}
-
-function darken(hex, amount) {
-  let r = parseInt(hex.slice(1, 3), 16);
-  let g = parseInt(hex.slice(3, 5), 16);
-  let b = parseInt(hex.slice(5, 7), 16);
-  r = Math.max(0, Math.floor(r * (1 - amount)));
-  g = Math.max(0, Math.floor(g * (1 - amount)));
-  b = Math.max(0, Math.floor(b * (1 - amount)));
-  return `rgb(${r},${g},${b})`;
-}
-
-function lighten(hex, amount) {
-  let r = parseInt(hex.slice(1, 3), 16);
-  let g = parseInt(hex.slice(3, 5), 16);
-  let b = parseInt(hex.slice(5, 7), 16);
-  r = Math.min(255, Math.floor(r + (255 - r) * amount));
-  g = Math.min(255, Math.floor(g + (255 - g) * amount));
-  b = Math.min(255, Math.floor(b + (255 - b) * amount));
-  return `rgb(${r},${g},${b})`;
-}
-
-// ─── CTA ───
-document.getElementById('ctaBtn').addEventListener('click', () => {
-  if (!state.designImg) return;
-  const btn = document.getElementById('ctaBtn');
-  btn.textContent = '✓ Sepete Eklendi!';
-  btn.style.background = '#2ecc71';
-  setTimeout(() => {
-    btn.textContent = 'Sepete Ekle →';
-    btn.style.background = '';
-  }, 2000);
 });
 
-// Boot
-init();
+let visCount=20;
+function renderProducts(filter='all'){
+  const filtered=filter==='all'?allProducts:allProducts.filter(p=>p.cat===filter);
+  const show=filtered.slice(0,visCount);
+  document.getElementById('productsGrid').innerHTML=show.map(p=>`
+    <div class="p-card" data-cat="${p.cat}">
+      ${p.badge?`<span class="p-badge ${p.badge}">${p.badge==='new'?'Yeni':p.badge==='sale'?'%'+p.discount:p.badge==='best'?'Çok Satan':''}</span>`:''}
+      <div class="p-img"><img src="${bImg(p.imgIdx)}" alt="${p.series} ${catNames[p.cat]}" loading="lazy">
+        <div class="p-actions"><div class="p-action-btn">♡</div><div class="p-action-btn">⤢</div><div class="p-action-btn">+</div></div>
+      </div>
+      <div class="p-body">
+        <div class="p-cat">${catNames[p.cat]}</div>
+        <div class="p-name">${p.series} ${p.size} ${catNames[p.cat]}</div>
+        <div class="p-colors">${p.colors.map(c=>`<div class="color-swatch" style="background:${c.hex}"><span class="tooltip">${c.name}</span></div>`).join('')}</div>
+        <div class="p-price">
+          <span class="current">${p.price.toLocaleString('tr-TR')}₺</span>
+          ${p.oldPrice?`<span class="old">${p.oldPrice.toLocaleString('tr-TR')}₺</span><span class="discount">%${p.discount}</span>`:''}
+        </div>
+        <div class="p-installment">Ayda <strong>${p.installment.toLocaleString('tr-TR')}₺</strong>'den başlayan taksitlerle</div>
+        <div class="p-stars"><span class="stars">★★★★★</span> <span class="count">${p.rating} (${p.reviews})</span></div>
+        <div class="p-features">${p.feat.map(f=>`<span class="p-feat">${f}</span>`).join('')}</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('loadMore').style.display=visCount>=filtered.length?'none':'inline-block';
+}
+renderProducts();
+document.querySelectorAll('.filter-btn').forEach(btn=>{btn.addEventListener('click',function(){document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');visCount=20;renderProducts(this.dataset.filter)})});
+document.getElementById('loadMore').addEventListener('click',()=>{visCount+=20;renderProducts(document.querySelector('.filter-btn.active').dataset.filter)});
+
+// Bestsellers - women looking in mirror
+const bestProducts=[
+  {name:'Eleganza Aynalı Dolap',price:'8.900₺',inst:'742₺'},
+  {name:'Luminosa LED Ayna',price:'6.500₺',inst:'542₺'},
+  {name:'Milano Lavabo Seti',price:'12.400₺',inst:'1.034₺'},
+  {name:'Specchio Akıllı Ayna',price:'9.800₺',inst:'817₺'},
+  {name:'Aurora Makyaj Aynası',price:'4.200₺',inst:'350₺'},
+  {name:'Brillante Aynalı Ünite',price:'7.600₺',inst:'634₺'},
+  {name:'Stella Premium Ayna',price:'11.200₺',inst:'934₺'},
+  {name:'Riflesso Duvar Aynası',price:'5.800₺',inst:'484₺'},
+  {name:'Chiaro LED Set',price:'10.500₺',inst:'875₺'},
+  {name:'Vivido Aynalı Dolap',price:'8.200₺',inst:'684₺'}
+];
+document.getElementById('bestScroll').innerHTML=bestProducts.map((b,i)=>`
+  <div class="best-card"><div class="best-img"><img src="${wmImg(i)}" alt="${b.name}" loading="lazy"><span class="best-tag">Çok Satan</span></div>
+  <div class="best-body"><h3>${b.name}</h3><div class="price">${b.price}</div><div class="inst">Ayda <strong>${b.inst}</strong>'den başlayan taksitlerle</div></div></div>`).join('');
+
+// Showcase
+const showcaseData=[
+  {title:'Bebek Villa',tag:'Villa Projesi',cls:'tall'},{title:'Nişantaşı Suite',tag:'Daire',cls:''},{title:'Bosphorus Grand',tag:'Otel',cls:''},
+  {title:'Etiler Residence',tag:'Residence',cls:'wide'},{title:'Çeşme Yazlık',tag:'Villa',cls:''},{title:'Bodrum Marina',tag:'Butik Otel',cls:''},
+  {title:'Sapanca Estate',tag:'Villa',cls:'wide'},{title:'Ataşehir Tower',tag:'Daire',cls:''}
+];
+document.getElementById('showcaseGrid').innerHTML=showcaseData.map((s,i)=>`<div class="showcase-item ${s.cls} reveal"><img src="${bImg(i+2)}" alt="${s.title}" loading="lazy"><div class="showcase-label"><span>${s.tag}</span><h4>${s.title}</h4></div></div>`).join('');
+
+// --- 200 SEO BLOG POSTS ---
+const blogPosts=[
+{t:'2026 Banyo Trendleri: Doğallık ve Minimalizm',c:'Trendler',tags:['banyo trendleri','minimalist banyo','2026 banyo'],d:'Bu yıl banyo tasarımlarında doğal taş, ahşap ve earth tonları öne çıkıyor. Minimalist çizgiler ve fonksiyonel tasarımlar...'},
+{t:'Küçük Banyolar İçin 15 Akıllı Depolama Çözümü',c:'Rehber',tags:['küçük banyo','depolama','banyo dolabı'],d:'Dar alanları verimli kullanmanın yolları. Duvara monte dolaplar, köşe raflar ve gizli depolama fikirleri ile küçük banyonuzu...'},
+{t:'Duşakabin Seçerken Dikkat Edilecek 7 Kriter',c:'Rehber',tags:['duşakabin','cam duşakabin','duşakabin seçimi'],d:'Cam kalınlığı, profil malzemesi, kaplama teknolojisi ve sürgü sistemi. Doğru duşakabini seçmenin püf noktaları...'},
+{t:'Banyo Dolabı Bakımı: Ömrünü 2 Katına Çıkarın',c:'İpucu',tags:['banyo dolabı bakımı','dolap temizliği','banyo bakım'],d:'Doğru temizlik ürünleri ve bakım yöntemleriyle banyo dolabınızın ömrünü uzatmanın kolay yolları...'},
+{t:'LED Aynalı Dolap Alım Rehberi',c:'Rehber',tags:['aynalı dolap','LED ayna','banyo aynası'],d:'Akıllı aynalı dolapların özellikleri, buğu önleme sistemi, dokunmatik sensör ve seçim kriterleri...'},
+{t:'Banyo Yenileme Maliyeti 2026: Detaylı Fiyat Rehberi',c:'Rehber',tags:['banyo yenileme','banyo tadilat','banyo maliyeti'],d:'Banyonuzu yenilemek istiyorsanız bütçenizi doğru planlamanız önemli. 2026 güncel fiyatlar...'},
+{t:'Modern Banyo Dolabı Modelleri ve Fiyatları',c:'Ürün',tags:['modern banyo dolabı','banyo dolabı fiyat','dolap modelleri'],d:'2026 yılının en popüler modern banyo dolabı modelleri, renk seçenekleri ve güncel fiyat listesi...'},
+{t:'Duşakabin Temizliği: Kireç Lekesi Nasıl Çıkar?',c:'İpucu',tags:['duşakabin temizliği','kireç lekesi','cam temizliği'],d:'Duşakabin camındaki inatçı kireç lekelerini doğal yöntemlerle temizlemenin 5 etkili yolu...'},
+{t:'Banyo Dekorasyonunda Renk Seçimi Rehberi',c:'Dekorasyon',tags:['banyo renk','banyo dekorasyon','renk seçimi'],d:'Banyonuz için doğru renk paleti nasıl seçilir? Küçük banyolar için açık tonlar, geniş banyolar için...'},
+{t:'Köşe Duşakabin mi Düz Panel mi? Karşılaştırma',c:'Karşılaştırma',tags:['köşe duşakabin','düz panel duşakabin','duşakabin karşılaştırma'],d:'Her iki duşakabin tipinin avantaj ve dezavantajları, hangi banyo tipine hangisi uygun...'},
+{t:'Banyo Dolabı Ölçüleri: Hangi Boy Banyonuza Uyar?',c:'Rehber',tags:['banyo dolabı ölçüleri','dolap boyutları','60cm dolap'],d:'60cm, 80cm, 100cm, 120cm ve 150cm banyo dolapları. Banyonuzun metrekaresine göre ideal ölçü...'},
+{t:'Walk-in Duşakabin Nedir? Avantajları Neler?',c:'Rehber',tags:['walk-in duşakabin','açık duşakabin','modern duş'],d:'Walk-in duşakabinler, kapısız açık tasarımıyla modern banyoların vazgeçilmezi. Avantaj ve dezavantajları...'},
+{t:'Banyo Aydınlatma Fikirleri: LED vs Spot',c:'Dekorasyon',tags:['banyo aydınlatma','LED aydınlatma','banyo spot'],d:'Banyonuzda doğru aydınlatma atmosfer yaratır. LED şerit, spot lamba ve ayna aydınlatması karşılaştırması...'},
+{t:'Mermer Banyo Tezgahı: Doğal vs Yapay Mermer',c:'Karşılaştırma',tags:['mermer tezgah','banyo tezgah','doğal mermer'],d:'Carrara, Calacatta ve yapay mermer seçenekleri. Fiyat, dayanıklılık ve bakım karşılaştırması...'},
+{t:'Banyo Dolabı Renk Trendleri 2026',c:'Trendler',tags:['dolap renk','mat siyah banyo','beyaz dolap'],d:'Mat siyah, antrasit, doğal meşe ve sage green bu yılın en trend banyo dolabı renkleri...'},
+{t:'Dar Banyo Tasarım Fikirleri: 20 İlham Verici Proje',c:'İlham',tags:['dar banyo','küçük banyo tasarım','banyo fikir'],d:'3-5 metrekare banyolar için 20 gerçek proje örneği. Alan kazandıran tasarım hileleri...'},
+{t:'Banyo Fayansı Seçimi: Seramik vs Porselen',c:'Rehber',tags:['banyo fayans','seramik','porselen','banyo zemin'],d:'Seramik ve porselen fayans arasındaki farklar, banyo duvarı ve zemini için en uygun seçenekler...'},
+{t:'Soft-Close Menteşe Nedir? Neden Önemli?',c:'Bilgi',tags:['soft-close','menteşe','banyo dolabı mekanizma'],d:'Yavaş kapanma mekanizmasının avantajları, çeşitleri ve banyo dolabı ömrüne etkisi...'},
+{t:'Banyo Dolabı Altı Lavabo Seçimi',c:'Rehber',tags:['lavabo','tezgah altı lavabo','tezgah üstü lavabo'],d:'Tezgah altı, tezgah üstü ve entegre lavabo seçenekleri. Her birinin avantaj ve dezavantajları...'},
+{t:'10mm vs 8mm Duşakabin Camı: Hangisi Daha İyi?',c:'Karşılaştırma',tags:['duşakabin cam','temperli cam','10mm cam'],d:'Cam kalınlığının güvenlik, ses yalıtımı ve estetiğe etkisi. Hangisini tercih etmelisiniz...'},
+{t:'Banyo Tadilat Süreci: Adım Adım Rehber',c:'Rehber',tags:['banyo tadilat','banyo yenileme','tadilat rehberi'],d:'Banyonuzu yenilemek istiyorsanız bilmeniz gereken tüm adımlar, süre ve maliyet planlaması...'},
+{t:'Nano Kaplama Teknolojisi Nedir?',c:'Bilgi',tags:['nano kaplama','duşakabin kaplama','kolay temizlik'],d:'Nano teknoloji cam kaplamalarının çalışma prensibi, avantajları ve ömrü hakkında her şey...'},
+{t:'Banyo Aksesuarları: Havluluk, Sabunluk ve Raf Seçimi',c:'Rehber',tags:['banyo aksesuar','havluluk','sabunluk','banyo raf'],d:'Banyonuzun havasını değiştirecek aksesuar setleri, malzeme seçenekleri ve montaj ipuçları...'},
+{t:'Küvet vs Duşakabin: Hangisi Daha Pratik?',c:'Karşılaştırma',tags:['küvet','duşakabin','banyo karşılaştırma'],d:'Modern yaşamda küvet mi yoksa duşakabin mi? Kullanım kolaylığı, hijyen ve maliyet açısından...'},
+{t:'Banyo Dolabı Malzeme Rehberi: MDF, Laminat, Lake',c:'Rehber',tags:['MDF dolap','laminat dolap','lake dolap'],d:'Neme dayanıklı MDF, HPL laminat ve lake kaplama seçenekleri. Hangi malzeme banyoya en uygun...'},
+{t:'Banyoda Ahşap Kullanımı: Dikkat Edilmesi Gerekenler',c:'İpucu',tags:['ahşap banyo','doğal ahşap','banyo ahşap dolap'],d:'Banyoda ahşap kullanmak isteyenler için nem koruma, cila ve bakım önerileri...'},
+{t:'Engelli ve Yaşlı Dostu Banyo Tasarımı',c:'Rehber',tags:['engelsiz banyo','yaşlı dostu','bariyer free banyo'],d:'Tutunma barları, oturmalı duş, eşiksiz giriş ve diğer erişilebilir banyo çözümleri...'},
+{t:'Banyo Havalandırma Sistemleri Rehberi',c:'Rehber',tags:['banyo havalandırma','aspiratör','nem alma'],d:'Küf ve rutubet sorunlarını önlemek için doğru havalandırma sistemi seçimi ve montajı...'},
+{t:'İtalyan Banyo Tasarım Trendleri',c:'İlham',tags:['İtalyan banyo','Milano tasarım','lüks banyo'],d:'Milano Tasarım Haftası\'ndan ilham alan İtalyan banyo trendleri, minimalizm ve doğal malzemeler...'},
+{t:'Banyo Dolabı Aydınlatması: Alt, Üst ve İç LED',c:'Rehber',tags:['dolap aydınlatma','LED dolap','alt aydınlatma'],d:'Banyo dolabınıza entegre LED aydınlatma seçenekleri, renk sıcaklığı ve montaj yöntemleri...'},
+{t:'Duşakabin Profil Çeşitleri: Krom, Mat Siyah, Altın',c:'Rehber',tags:['duşakabin profil','krom profil','mat siyah profil'],d:'Duşakabin profil malzeme ve renk seçenekleri. Paslanmaz çelik, alüminyum ve pirinç karşılaştırması...'},
+{t:'Banyo Zemin Isıtma Sistemi: Lüks mü Gereklilik mi?',c:'Bilgi',tags:['yerden ısıtma','banyo ısıtma','sıcak zemin'],d:'Banyo zemin ısıtma sistemlerinin maliyeti, enerji tüketimi ve konfor avantajları...'},
+{t:'Çift Lavabolu Banyo Dolabı: Kimlere Uygun?',c:'Rehber',tags:['çift lavabo','ikili dolap','geniş banyo dolabı'],d:'Çift lavabolu banyo dolaplarının avantajları, minimum alan gereksinimleri ve model seçenekleri...'},
+{t:'Banyo Dolabı Kulp Seçimi: 50 Farklı Model',c:'İlham',tags:['dolap kulp','kulp modelleri','banyo dolabı detay'],d:'Modern, klasik, minimal ve push-to-open kulp alternatifleri. Banyonuzun stiline uygun kulp nasıl seçilir...'},
+{t:'Duvar Tipi vs Ayaklı Banyo Dolabı',c:'Karşılaştırma',tags:['asma dolap','ayaklı dolap','duvar tipi banyo'],d:'Havada asılı dolaplar vs zemine oturan modeller. Temizlik, estetik ve montaj açısından farklar...'},
+{t:'Banyo Seramik Trendleri 2026',c:'Trendler',tags:['seramik trend','banyo karo','büyük format fayans'],d:'Büyük format karolar, 3D dokulu seramikler ve terrazzo efektli fayanslar bu yılın yıldızları...'},
+{t:'Aynalı Dolap mı Ayrı Ayna mı?',c:'Karşılaştırma',tags:['aynalı dolap','banyo aynası','dolap vs ayna'],d:'Aynalı dolapların depolama avantajı ile bağımsız aynaların estetik çekiciliği karşılaştırması...'},
+{t:'Banyoda Cam Mozaik Kullanımı',c:'Dekorasyon',tags:['cam mozaik','mozaik banyo','dekoratif kaplama'],d:'Cam mozaiklerle banyonuza karakter katmanın yolları, renk kombinasyonları ve uygulama alanları...'},
+{t:'Banyo Dolabı Tezgah Malzemeleri: Corian, Mermer, Seramik',c:'Karşılaştırma',tags:['Corian tezgah','seramik tezgah','tezgah malzeme'],d:'Farklı tezgah malzemelerinin dayanıklılık, bakım kolaylığı ve fiyat karşılaştırması...'},
+{t:'Duş Başlığı Seçimi: Yağmur Duş, El Duşu, Combo',c:'Rehber',tags:['duş başlığı','yağmur duş','banyo armatür'],d:'Farklı duş başlığı tipleri, su tasarrufu özellikleri ve montaj seçenekleri hakkında detaylı rehber...'},
+{t:'Banyo Mobilyası Tamamlayıcılar: Boy Dolap ve Raf Üniteleri',c:'Rehber',tags:['boy dolap','banyo raf','banyo mobilya'],d:'Banyo dolabınızı tamamlayan boy dolaplar, açık raflar ve duvar üniteleri ile depolama çözümleri...'},
+{t:'Mat Lake vs Parlak Lake Banyo Dolabı',c:'Karşılaştırma',tags:['mat lake','parlak lake','dolap kaplama'],d:'Mat ve parlak lake kaplamaların görünüm, bakım ve parmak izi direnci açısından karşılaştırması...'},
+{t:'Banyoda Bitki Dekorasyonu: Neme Dayanıklı Bitkiler',c:'Dekorasyon',tags:['banyo bitki','nem seven bitki','yeşil banyo'],d:'Banyonuzda yetiştirebileceğiniz 10 neme dayanıklı bitki ve bakım önerileri...'},
+{t:'Banyo Batarya Seçimi: Klasik vs Termostatik',c:'Rehber',tags:['banyo batarya','termostatik batarya','musluk seçimi'],d:'Termostatik bataryaların avantajları, su tasarrufu ve yanma önleyici güvenlik özellikleri...'},
+{t:'3D Banyo Tasarım Programları: Ücretsiz Araçlar',c:'Bilgi',tags:['3D banyo tasarım','banyo planlama','tasarım programı'],d:'Banyonuzu kendiniz tasarlamak için kullanabileceğiniz ücretsiz 3D tasarım programları ve uygulamaları...'},
+{t:'Banyo Dolabı Sipariş Süreci: Sipariş den Montaja',c:'Rehber',tags:['sipariş süreci','montaj','teslimat'],d:'Online sipariş verdikten sonra banyonuzda ne zaman yeni dolabınızı göreceksiniz? Tüm süreç detayları...'},
+{t:'Antrasit Banyo Dekorasyonu: Koyu Tonların Cazibesi',c:'Dekorasyon',tags:['antrasit banyo','koyu banyo','siyah banyo'],d:'Antrasit ve koyu tonlarda banyo tasarımı, altın detaylar ve aydınlatma ipuçları...'},
+{t:'Duşakabin Montajı: Kendin Yap vs Profesyonel',c:'İpucu',tags:['duşakabin montaj','kendin yap','profesyonel montaj'],d:'Duşakabin montajını kendiniz yapabilir misiniz? Riskler, gerekli aletler ve profesyonel farkı...'},
+{t:'Banyo Penceresi Olan Banyolar İçin Tasarım Fikirleri',c:'İlham',tags:['pencereli banyo','doğal ışık banyo','banyo pencere'],d:'Doğal ışık alan banyolarda perde seçimi, mahremiyet çözümleri ve dekorasyon fikirleri...'},
+{t:'Su Tasarruflu Banyo Ürünleri',c:'Bilgi',tags:['su tasarrufu','eko banyo','tasarruflu batarya'],d:'Su tüketimini %40\'a kadar azaltan bataryalar, duş başlıkları ve klozet sistemleri...'},
+{t:'Banyo Dolabı Garantisi: Nelere Dikkat Etmeli?',c:'Rehber',tags:['dolap garanti','garanti kapsamı','üretici garanti'],d:'Banyo dolabı garanti belgesi okurken dikkat etmeniz gereken maddeler ve haklarınız...'},
+{t:'Beyaz Banyo Dekorasyonu: Sıkıcı Olmadan Zarif',c:'Dekorasyon',tags:['beyaz banyo','beyaz dolap','sade banyo'],d:'Beyaz banyoyu sıkıcı olmaktan kurtaran doku, malzeme ve aksesuar seçimleri...'},
+{t:'Banyo Dolabı Push-to-Open Sistemi Nedir?',c:'Bilgi',tags:['push-to-open','kulpsuz dolap','mekanizma'],d:'Kulpsuz açılma mekanizmasının çalışma prensibi, avantajları ve dezavantajları...'},
+{t:'Lüks Otel Banyosu Estetiğini Evinize Taşıyın',c:'İlham',tags:['lüks banyo','otel banyo','premium tasarım'],d:'5 yıldızlı otel banyolarının sırrı: aydınlatma, malzeme ve aksesuar seçimi ipuçları...'},
+{t:'Banyo Dolabı Fiyatlarını Etkileyen 8 Faktör',c:'Rehber',tags:['dolap fiyat','banyo dolabı fiyat','fiyat karşılaştırma'],d:'Malzeme, boyut, marka, kaplama ve mekanizma gibi fiyatı belirleyen kritik faktörler...'},
+{t:'Banyo Dolabı Üzerine Tezgah mı Entegre Lavabo mu?',c:'Karşılaştırma',tags:['entegre lavabo','tezgah üstü','lavabo tipi'],d:'Tezgah üstüne oturan lavabo ile entegre seramik lavaboların karşılaştırması...'},
+{t:'Banyoda Niş (Duvar İçi Raf) Kullanımı',c:'İpucu',tags:['duvar niş','banyo niş','duvar içi raf'],d:'Duşakabin ve banyo duvarlarında niş açarak ekstra depolama alanı yaratma yöntemleri...'},
+{t:'Banyo Dolabı Montaj Hatalarını Önleyin',c:'İpucu',tags:['montaj hatası','dolap montaj','kurulum ipucu'],d:'En sık yapılan 10 montaj hatası ve bunlardan nasıl kaçınılacağı...'},
+{t:'Bej ve Krem Tonlarda Banyo Tasarımı',c:'Dekorasyon',tags:['bej banyo','krem banyo','sıcak tonlar'],d:'Bej, krem ve toprak tonlarıyla sıcak ve davetkar bir banyo atmosferi yaratmanın yolları...'},
+{t:'Alman Ray Sistemi Nedir? Neden Tercih Edilmeli?',c:'Bilgi',tags:['Alman ray','çekmece ray','dolap mekanizma'],d:'Blum, Hettich ve Grass gibi Alman ray sistemlerinin özellikleri ve ucuz alternatiflere göre farkları...'},
+{t:'Banyoda Ayna Yerleştirme Kuralları',c:'İpucu',tags:['ayna yerleştirme','banyo ayna boyut','ideal yükseklik'],d:'Banyo aynasının ideal boyutu, yüksekliği ve aydınlatma ile uyumu hakkında pratik kurallar...'},
+{t:'Çocuk Banyosu Tasarımı: Güvenli ve Eğlenceli',c:'İlham',tags:['çocuk banyosu','güvenli banyo','renkli banyo'],d:'Çocuklar için güvenli, fonksiyonel ve renkli banyo tasarım fikirleri ve ürün önerileri...'},
+{t:'Banyo Dolabı mı Etajer mi? Ne Zaman Hangisi?',c:'Karşılaştırma',tags:['etajer','banyo dolabı','depolama çözümü'],d:'Banyo dolabı ve etajer arasındaki farklar, hangi durumda hangisinin daha uygun olduğu...'},
+{t:'Duşakabin Sızdırmazlık Sorunları ve Çözümleri',c:'İpucu',tags:['sızdırmazlık','duşakabin sorun','conta değişimi'],d:'Duşakabinden su sızması sorunlarının nedenleri, conta bakımı ve kalıcı çözüm yöntemleri...'},
+{t:'Banyo Halısı Seçimi: Kaymaz ve Şık Modeller',c:'Rehber',tags:['banyo halısı','kaymaz paspas','banyo tekstil'],d:'Banyonuz için güvenli, kolay yıkanabilir ve estetik halı/paspas seçenekleri...'},
+{t:'Banyo Dolabında Organizasyon İpuçları',c:'İpucu',tags:['dolap düzeni','organizasyon','banyo düzen'],d:'Banyo dolabınızı maksimum verimle kullanmak için 12 organizasyon fikri ve ürün önerisi...'},
+{t:'Rustik Banyo Tasarımı: Ahşap ve Taş Dokusu',c:'İlham',tags:['rustik banyo','ahşap banyo','doğal tasarım'],d:'Rustik tarzda banyo tasarımı için ahşap, doğal taş ve vintage aksesuar kombinasyonları...'},
+{t:'Banyo Yenileme Öncesi 10 Soru Sormalısınız',c:'Rehber',tags:['banyo yenileme','tadilat planlama','banyo checklist'],d:'Banyo tadilata başlamadan önce kendinize sormanız gereken 10 kritik soru ve cevapları...'},
+{t:'Duşakabin Kapı Tipleri: Sürgülü, Menteşeli, Katlanır',c:'Karşılaştırma',tags:['sürgülü duşakabin','menteşeli kapı','katlanır duş'],d:'Farklı duşakabin kapı mekanizmalarının alan kullanımı ve pratiklik açısından karşılaştırması...'},
+{t:'Banyo Aydınlatmasında IP Koruma Sınıfları',c:'Bilgi',tags:['IP koruma','banyo elektrik','güvenli aydınlatma'],d:'Banyoda hangi aydınlatma ürünlerini güvenle kullanabileceğinizi belirleyen IP sınıfları rehberi...'},
+{t:'Japon Banyo Kültürü ve Minimalist Tasarım',c:'İlham',tags:['Japon banyo','minimalist','zen banyo'],d:'Japonya\'nın banyo felsefesinden ilham alan minimalist ve huzurlu banyo tasarım fikirleri...'},
+{t:'Banyo Dolabı Boyama ve Yenileme: DIY Rehber',c:'İpucu',tags:['dolap boyama','DIY banyo','yenileme'],d:'Eski banyo dolabınızı boyayarak yenilemenin adım adım rehberi, malzeme listesi ve ipuçları...'},
+{t:'Frameless Duşakabin: Çerçevesiz Camın Estetiği',c:'Ürün',tags:['frameless duşakabin','çerçevesiz','minimal duş'],d:'Çerçevesiz duşakabinlerin avantajları, fiyat aralığı ve dikkat edilmesi gereken teknik detaylar...'},
+{t:'Banyoda Altın Detaylar: Batarya, Aksesuar ve Profil',c:'Trendler',tags:['altın batarya','gold aksesuar','banyo trend'],d:'Altın ve pirinç tonlu aksesuarlarla banyonuza lüks bir dokunuş katmanın yolları...'},
+{t:'Banyo Seramik Derz Temizliği ve Yenileme',c:'İpucu',tags:['derz temizliği','fayans bakım','banyo temizlik'],d:'Kararmış ve küflenmiş seramik derzlerini temizleme ve yenileme yöntemleri...'},
+{t:'Gömme Dolap Banyo Çözümleri',c:'Rehber',tags:['gömme dolap','duvar içi dolap','entegre depolama'],d:'Duvar içine gömme banyo dolaplarının avantajları, inşaat gereksinimleri ve tasarım seçenekleri...'},
+{t:'Banyo Radyatörü ve Havlu Kurutucu Seçimi',c:'Rehber',tags:['banyo radyatör','havlu kurutucu','banyo ısıtma'],d:'Dekoratif banyo radyatörleri, havlu kurutma özellikli modeller ve enerji verimliliği...'},
+{t:'Smart Banyo: Akıllı Teknolojiler',c:'Bilgi',tags:['akıllı banyo','smart tuvalet','otomatik batarya'],d:'Sensörlü bataryalar, akıllı aynalar, bluetooth hoparlörlü dolaplar ve otomatik aydınlatma...'},
+{t:'Banyo Kapısı Seçimi: Ahşap, Cam veya PVC?',c:'Rehber',tags:['banyo kapısı','cam kapı','PVC kapı'],d:'Banyolar için en uygun kapı malzemesi, nem direnci ve ses yalıtımı karşılaştırması...'},
+{t:'Tezgah Üstü Lavabo Modelleri: 30 İlham Verici Tasarım',c:'İlham',tags:['tezgah üstü lavabo','tasarım lavabo','modern lavabo'],d:'Yuvarlak, kare, oval ve organik formlu tezgah üstü lavabo modelleri ve fiyat aralıkları...'},
+{t:'Banyoda Gizli Depolama Fikirleri',c:'İpucu',tags:['gizli depolama','banyo hack','alan tasarrufu'],d:'Ayna arkası, duvar içi ve dolap içi gizli depolama çözümleriyle düzenli bir banyo...'},
+{t:'Banyo Dolabı İçin İdeal Tezgah Yüksekliği',c:'Bilgi',tags:['tezgah yüksekliği','ergonomi','banyo ölçü'],d:'Standart 85cm yükseklik doğru mu? Boy uzunluğuna göre ideal banyo tezgahı yüksekliği...'},
+{t:'Duşakabin İçin Su Gideri Seçimi: Nokta vs Kanal',c:'Rehber',tags:['duş gideri','kanal gider','banyo su gideri'],d:'Nokta süzgeç ve lineer kanal gider arasındaki farklar, montaj ve temizlik kolaylığı...'},
+{t:'Banyo Aydınlatmasında Renk Sıcaklığı Neden Önemli?',c:'Bilgi',tags:['renk sıcaklığı','Kelvin','banyo ışık'],d:'Sıcak beyaz, doğal beyaz ve günışığı aydınlatma arasındaki fark ve banyoya etkisi...'},
+{t:'Scandinavian Tarz Banyo Tasarımı',c:'İlham',tags:['İskandinav banyo','nordik tasarım','beyaz ahşap'],d:'İskandinav tarzı banyo tasarımının sadeliği, doğal ahşap ve beyaz tonların uyumu...'},
+{t:'Banyo Dolabı Satın Alırken Yapılan 7 Hata',c:'İpucu',tags:['alım hataları','dolap seçim','dikkat edilecekler'],d:'Yanlış ölçü, ucuz malzeme ve düşünülmeyen detaylar. Banyo dolabı alırken kaçınmanız gereken hatalar...'},
+{t:'Otel Banyosu Konseptiyle Ev Banyosu Tasarlamak',c:'İlham',tags:['otel konsept','lüks ev banyosu','spa banyo'],d:'5 yıldızlı otel konforunu evinize taşımak için mobilya, aksesuar ve aydınlatma seçimleri...'},
+{t:'Banyoda Petek Karo Kullanımı',c:'Dekorasyon',tags:['petek karo','hexagon fayans','dekoratif zemin'],d:'Altıgen petek karoların farklı kullanım alanları, renk kombinasyonları ve döşeme teknikleri...'},
+{t:'Banyo Dolabı Arkalık Seçenekleri',c:'Bilgi',tags:['dolap arkalık','sırt paneli','nem koruması'],d:'MDF, laminat ve cam arkalık malzemeleri. Nem ve su direnci açısından en doğru seçim...'},
+{t:'Duşakabin Cam Desenleri: Şeffaf, Buzlu, Çizgili',c:'Rehber',tags:['buzlu cam','şeffaf duşakabin','dekorlu cam'],d:'Farklı duşakabin cam desen seçeneklerinin mahremiyet, estetik ve fiyat açısından karşılaştırması...'},
+{t:'Banyoda Yeşil Renk Kullanımı: Sage Green Trendi',c:'Trendler',tags:['yeşil banyo','sage green','trend renk'],d:'2026\'nın trend rengi sage green ile banyo tasarımı, doğal yeşil tonlarla huzurlu mekanlar...'},
+{t:'Banyo Dolabı Üst Dolap: Gerekli mi?',c:'Karşılaştırma',tags:['üst dolap','banyo depolama','dolap düzeni'],d:'Banyo dolabı üstüne ek dolap konulmalı mı? Depolama ihtiyacı ve estetik dengesi...'},
+{t:'Banyoda Ahşap Görünümlü Seramik',c:'Dekorasyon',tags:['ahşap seramik','wood look tile','banyo zemin'],d:'Gerçek ahşap estetiği, seramik dayanıklılığı. Ahşap desenli seramik fayanslarla doğal banyo...'},
+{t:'Dar Duşakabin Çözümleri: 70cm ve 80cm Modeller',c:'Ürün',tags:['dar duşakabin','70cm duşakabin','küçük duş'],d:'Küçük banyolar için 70cm ve 80cm genişliğinde duşakabin modelleri ve alan kazandıran çözümler...'},
+{t:'Banyoda Vinylex Zemin Kaplama',c:'Rehber',tags:['vinyl zemin','LVT banyo','su geçirmez zemin'],d:'Lüks vinil karo (LVT) ile banyoda pratik ve şık zemin çözümü. Fayansa alternatif...'},
+{t:'Banyo Dolabı Çekmece Düzenleyicileri',c:'İpucu',tags:['çekmece düzenleyici','dolap organizasyon','banyo düzen'],d:'Çekmece bölücüler, insert kutular ve çıkarılabilir organizatörlerle düzenli banyo dolabı...'},
+{t:'Duş Teknesi vs Duş Zemini: Hangisi Sizin İçin?',c:'Karşılaştırma',tags:['duş teknesi','flush zemin','level access'],d:'Yükseltilmiş duş teknesi ve zemin seviyesinde duş arasında seçim yaparken bilmeniz gerekenler...'},
+{t:'Banyo Aynası Arkası LED Aydınlatma DIY',c:'İpucu',tags:['ayna arkası LED','DIY aydınlatma','dekoratif ışık'],d:'Banyo aynasının arkasına LED şerit aydınlatma takmanın adım adım rehberi...'},
+{t:'Banyoda Endüstriyel Tarz: Metal ve Beton',c:'İlham',tags:['endüstriyel banyo','beton banyo','metal aksesuar'],d:'Beton efektli duvarlar, metal borulu aksesuarlar ve endüstriyel aydınlatma ile karakter sahibi banyo...'},
+{t:'Banyo Dolabı Üzerine Tezgah Taşma Payı Hesaplama',c:'Bilgi',tags:['tezgah ölçü','taşma payı','dolap ölçülendirme'],d:'Banyo dolabı tezgahının doğru ölçülendirilmesi, kenar profili ve taşma payı hesaplama rehberi...'},
+{t:'Açık Raf Banyo Dekorasyonu',c:'Dekorasyon',tags:['açık raf','banyo raf','dekoratif depolama'],d:'Açık raflarla hem depolama hem dekorasyon. Havlu, bitki ve aksesuar düzenleme fikirleri...'},
+{t:'Banyo Dolabı Ayna Kapak Seçenekleri',c:'Rehber',tags:['ayna kapak dolap','aynalı dolap kapağı','özel kapak'],d:'Banyo dolabı kapağını ayna kaplamayla hem depolama hem ayna olarak kullanma çözümleri...'},
+{t:'Yağmur Duş Sistemi Kurulumu ve Seçimi',c:'Rehber',tags:['yağmur duş','tavan duşu','shower system'],d:'Tavan montajlı yağmur duş sistemleri, su basıncı gereksinimleri ve seçim kriterleri...'},
+{t:'Banyo Boyası Seçimi: Nem ve Küfe Dayanıklı',c:'Rehber',tags:['banyo boyası','neme dayanıklı boya','küf önleyici'],d:'Banyo duvarları için en uygun boya türleri, uygulama ipuçları ve marka karşılaştırması...'},
+{t:'Banyoda Terrazzo Trendi',c:'Trendler',tags:['terrazzo','banyo zemin trend','dekoratif yüzey'],d:'Terrazzo desenli seramikler ve gerçek terrazzo uygulamalarıyla retro-modern banyo tasarımı...'},
+{t:'Banyo Dolabı Online Sipariş Rehberi',c:'Rehber',tags:['online sipariş','internet alışveriş','banyo dolabı al'],d:'İnternetten banyo dolabı alırken dikkat etmeniz gerekenler, ölçü kontrolü ve iade hakları...'},
+{t:'Duşakabin Bakımı: Aylık Bakım Rutini',c:'İpucu',tags:['duşakabin bakım','cam bakım','conta temizliği'],d:'Duşakabininizin yıllarca yeni gibi kalması için aylık bakım rutini ve önerilen ürünler...'},
+{t:'Çamaşır Makinesi Banyo Dolabı Çözümleri',c:'Ürün',tags:['çamaşır makinesi dolap','gizli makine','banyo çözüm'],d:'Çamaşır makinesini banyo dolabı içine gizleme çözümleri, ölçü gereksinimleri ve havalandırma...'},
+{t:'Banyo Lavabo Bataryası Tipleri ve Seçimi',c:'Rehber',tags:['lavabo batarya','tek kollu','çift kollu batarya'],d:'Tek kollu, çift kollu, sensörlü ve şelale tipi lavabo bataryaları. Hangisi banyonuza uygun?...'},
+{t:'Banyoda Neon Aydınlatma Trendi',c:'Trendler',tags:['neon aydınlatma','dekoratif ışık','banyo neon'],d:'LED neon şeritlerle banyonuza modern ve eğlenceli bir hava katmanın yolları...'},
+{t:'Banyo Dolabı Menteşe Ayarı Nasıl Yapılır?',c:'İpucu',tags:['menteşe ayar','dolap bakım','kapak ayarlama'],d:'Eğik veya kapanmayan banyo dolabı kapaklarını 3 basit adımda düzeltme rehberi...'},
+{t:'Art Deco Banyo Tasarımı',c:'İlham',tags:['art deco banyo','geometrik desen','retro lüks'],d:'Art Deco stilinde banyo tasarımı: geometrik desenler, pirinç detaylar ve mermer yüzeyler...'},
+{t:'Banyo Duvar Paneli: Fayansa Alternatif',c:'Rehber',tags:['duvar paneli','PVC panel','fayans alternatif'],d:'Su geçirmez duvar panelleriyle fayans döşemeden hızlı ve pratik banyo yenileme...'},
+{t:'Banyo Dolabı İç Aksesuar Seçenekleri',c:'Ürün',tags:['dolap aksesuar','çekmece iç','düzenleyici'],d:'Makyaj bölmeleri, saç kurutma makinesi tutucusu, ilaç dolabı ve diğer iç aksesuar seçenekleri...'},
+{t:'Banyoda Mikro Çimento Kaplama',c:'Trendler',tags:['mikro çimento','beton görünüm','derzsiz banyo'],d:'Derzsiz, modern ve endüstriyel görünüm sağlayan mikro çimento banyo kaplamaları...'},
+{t:'Banyo Dolabı Kalite Kontrolü: Neleri Test Etmeli?',c:'Rehber',tags:['kalite kontrol','dolap test','ürün değerlendirme'],d:'Banyo dolabı teslim aldığınızda kontrol etmeniz gereken 15 nokta ve test yöntemleri...'},
+{t:'Duşakabin Camında Baskı ve Desen Seçenekleri',c:'Ürün',tags:['baskılı cam','desenli duşakabin','özel cam'],d:'Dijital baskılı, lazer işlemeli ve folyo uygulamalı özel duşakabin cam desenleri...'},
+{t:'Banyo Havlu Askılığı Modelleri ve Montaj İpuçları',c:'Rehber',tags:['havlu askılığı','havluluk','banyo aksesuar montaj'],d:'Farklı havlu askılığı modelleri, ideal montaj yüksekliği ve duvar tipi uyumu...'},
+{t:'Banyoda Taş Kaplama: Doğal ve Yapay Seçenekler',c:'Dekorasyon',tags:['taş kaplama','doğal taş','banyo duvar'],d:'Doğal ve yapay taş kaplamalarla banyonuza rustik veya modern bir dokunuş katma rehberi...'},
+{t:'Banyo Dolabı Kapak Tipleri: Kapaklı, Çekmeceli, Karma',c:'Rehber',tags:['dolap kapak','çekmeceli dolap','karma dolap'],d:'Farklı kapak ve çekmece kombinasyonlarının kullanım kolaylığı ve depolama verimliliği...'},
+{t:'Banyoda Tavan Tasarımı: Düz, Asma, Lambiri',c:'Dekorasyon',tags:['banyo tavan','asma tavan','lambiri tavan'],d:'Banyo tavanı için malzeme seçenekleri, nem direnci ve dekoratif çözümler...'},
+{t:'Banyo Dolabı ve Duşakabin Set Alımı Avantajları',c:'Rehber',tags:['set alım','kombi teklif','toplu sipariş'],d:'Banyo dolabı ve duşakabini aynı markadan set olarak almanın fiyat ve uyum avantajları...'},
+{t:'Minimalist Banyo Tasarımı: Az Çoktur',c:'İlham',tags:['minimalist banyo','sade tasarım','less is more'],d:'Minimalist banyo tasarımının kuralları, gerekli olan minimum öğeler ve gereksiz detaylardan arınma...'},
+{t:'Banyo Gider Tıkanıklığı Önleme ve Açma Yöntemleri',c:'İpucu',tags:['gider tıkanıklığı','boru açma','banyo bakım'],d:'Banyo lavabo ve duş giderinin tıkanmasını önleme ve tıkanan boruyu açma yöntemleri...'},
+{t:'Banyo Dolabı Sırt Aydınlatması (Ambiyans)',c:'Rehber',tags:['ambiyans ışık','dolap arkası LED','dekoratif aydınlatma'],d:'Banyo dolabının arkasına yerleştirilen LED ambiyans aydınlatma ile atmosfer yaratma...'},
+{t:'Banyoda Duvar Kağıdı Kullanılabilir mi?',c:'Bilgi',tags:['banyo duvar kağıdı','su geçirmez kağıt','dekoratif duvar'],d:'Banyoda su geçirmez duvar kağıdı uygulaması, uygun ürünler ve dikkat edilecekler...'},
+{t:'Banyo Dolabı Ayak Seçenekleri: Metal, Ahşap, Gömme',c:'Rehber',tags:['dolap ayak','metal ayak','asma dolap ayak'],d:'Farklı banyo dolabı ayak tipleri, yükseklik ayarı ve temizlik kolaylığı karşılaştırması...'},
+{t:'Banyo Renovasyon Zamanlaması: Ne Zaman Yapmalı?',c:'Rehber',tags:['renovasyon zamanı','tadilat mevsimi','planlama'],d:'Banyo tadilatı için en uygun mevsim, süre planlaması ve hızlandırma ipuçları...'},
+{t:'Duşakabin İçin Banyo Zemini Hazırlığı',c:'Rehber',tags:['zemin hazırlık','duş zemini','su yalıtım'],d:'Duşakabin montajı öncesi zemin eğimi, su yalıtımı ve gider yerleşimi hazırlık rehberi...'},
+{t:'Banyoda Gri Tonlar: Modern ve Şık',c:'Dekorasyon',tags:['gri banyo','füme banyo','modern gri'],d:'Açık griden antrasit tonlara, gri banyo tasarımının 15 farklı uygulaması ve kombinasyonu...'},
+{t:'Banyo Dolabı İç Aydınlatma Seçenekleri',c:'Ürün',tags:['iç aydınlatma','dolap içi LED','otomatik ışık'],d:'Kapak açıldığında otomatik yanan LED aydınlatma, çekmece içi ışıklar ve sensör seçenekleri...'},
+{t:'Banyoda Mermer Görünümlü Seramik Fayans',c:'Dekorasyon',tags:['mermer seramik','marble look','banyo fayans'],d:'Gerçek mermerin estetiği, seramiğin pratikliği. Mermer desenli fayanslarla uygun bütçede lüks banyo...'},
+{t:'Banyo Dolabı Üreticileri: Yerli vs İthal Marka',c:'Karşılaştırma',tags:['yerli üretim','ithal dolap','marka karşılaştırma'],d:'Türk ve İtalyan banyo dolabı markalarının kalite, fiyat ve tasarım açısından karşılaştırması...'},
+{t:'Banyoda Aydınlatma Katmanları: Genel, Görev, Dekoratif',c:'Rehber',tags:['aydınlatma katmanı','banyo ışık planı','lüks aydınlatma'],d:'Profesyonel banyo aydınlatması için 3 katmanlı ışık planı oluşturma rehberi...'},
+{t:'Banyo Dolabı Rafları: Cam, Ahşap, Metal',c:'Rehber',tags:['dolap raf','cam raf','ayarlanabilir raf'],d:'Banyo dolabı iç raf malzeme seçenekleri, taşıma kapasiteleri ve ayar mekanizmaları...'},
+{t:'Duşakabin Alanı Hesaplama: Minimum ve İdeal Boyutlar',c:'Bilgi',tags:['duşakabin alan','minimum ölçü','ideal boyut'],d:'Konforlu bir duş deneyimi için minimum ve önerilen duşakabin boyutları...'},
+{t:'Banyoda Vintage Tarz: Retro Dokunuşlar',c:'İlham',tags:['vintage banyo','retro tasarım','antika görünüm'],d:'Vintage tarzda banyo tasarımı için porselen detaylar, pirinç armatürler ve retro aynalar...'},
+{t:'Banyo Dolabı Siparişinde Renk Uyumu Nasıl Sağlanır?',c:'İpucu',tags:['renk uyumu','dolap renk seçimi','uyumlu tasarım'],d:'Banyo dolabı rengini seramik, batarya ve aksesuarlarla uyumlu seçmenin altın kuralları...'},
+{t:'Banyoda Su Yalıtımı: A\'dan Z\'ye Rehber',c:'Rehber',tags:['su yalıtım','banyo izolasyon','nem bariyeri'],d:'Banyo zemini ve duvarlarında doğru su yalıtımı uygulaması, malzeme seçimi ve yaygın hatalar...'},
+{t:'Banyo Dolabı Aydınlatmalı Ayna Entegrasyonu',c:'Ürün',tags:['aydınlatmalı ayna','entegre ayna','dolap ayna'],d:'Banyo dolabının üst kısmına entegre LED aydınlatmalı ayna uygulamaları ve modeller...'},
+{t:'Banyoda Renk Psikolojisi: Mavi Huzur, Yeşil Doğa',c:'Bilgi',tags:['renk psikolojisi','banyo renk etkisi','huzurlu banyo'],d:'Farklı renklerin banyodaki psikolojik etkileri ve ruh haline katkısı...'},
+{t:'Banyo Dolabı Nakliye ve Taşıma İpuçları',c:'İpucu',tags:['dolap nakliye','taşıma','ambalaj koruma'],d:'Banyo dolabını hasarsız taşımak için paketleme, taşıma ve yerleştirme ipuçları...'},
+{t:'Banyoda Fotosel Aydınlatma Kullanımı',c:'Bilgi',tags:['fotosel','hareket sensör','otomatik ışık'],d:'Gece aydınlatması için hareket sensörlü LED çözümler, enerji tasarrufu ve güvenlik avantajları...'},
+{t:'Banyo Tasarımında Simetri ve Asimetri',c:'Dekorasyon',tags:['simetrik tasarım','asimetrik banyo','düzen ilkeleri'],d:'Simetrik ve asimetrik banyo düzenlerinin estetik etkileri ve uygulama örnekleri...'},
+{t:'Banyo Dolabı Fiyat Listesi 2026',c:'Rehber',tags:['fiyat listesi','dolap fiyat 2026','güncel fiyat'],d:'2026 yılı güncel banyo dolabı fiyatları. Boyut, malzeme ve markaya göre fiyat aralıkları...'},
+{t:'Sürdürülebilir Banyo: Çevre Dostu Malzemeler',c:'Bilgi',tags:['sürdürülebilir','eko banyo','geri dönüşüm'],d:'Çevre dostu malzemeler, su tasarruflu armatürler ve sürdürülebilir banyo tasarımı rehberi...'},
+{t:'Banyo Dolabı için En İyi 10 Renk Kombinasyonu',c:'İlham',tags:['renk kombinasyonu','dolap renk','uyumlu renkler'],d:'Beyaz-meşe, antrasit-altın, gri-beyaz ve daha fazlası. En şık 10 renk kombinasyonu önerisi...'},
+{t:'Duşakabin Camı Kırılır mı? Güvenlik Rehberi',c:'Bilgi',tags:['temperli cam güvenlik','cam dayanıklılık','duşakabin güvenlik'],d:'Temperli camın kırılma koşulları, güvenlik standartları ve doğru kullanım kuralları...'},
+{t:'Banyoda Küf Oluşumunu Önlemenin 10 Yolu',c:'İpucu',tags:['küf önleme','banyo nem','havalandırma'],d:'Banyoda küf ve rutubet oluşumunu önlemek için alınabilecek 10 etkili önlem...'},
+{t:'Banyo Tadilat Bütçesi Nasıl Planlanır?',c:'Rehber',tags:['tadilat bütçe','maliyet planlama','banyo harcama'],d:'Banyo tadilatı için gerçekçi bütçe oluşturma rehberi, beklenmedik masraflar için yedek fon...'},
+{t:'Banyoda Mozaik Bordür Kullanımı',c:'Dekorasyon',tags:['mozaik bordür','dekoratif şerit','fayans detay'],d:'Mozaik bordürlerle banyonuza karakter katma fikirleri, yerleştirme alanları ve renk seçimi...'},
+{t:'Banyo Dolabı Ayna Isıtıcı (Buğu Çözücü) Sistemi',c:'Bilgi',tags:['ayna ısıtıcı','buğu çözücü','anti-fog'],d:'Banyo aynasının buğulanmasını önleyen ısıtıcı filmlerin çalışma prensibi ve montajı...'},
+{t:'Banyoda Doğal Işık Maksimizasyonu',c:'İpucu',tags:['doğal ışık','banyo pencere','aydınlık banyo'],d:'Pencereli banyolarda doğal ışığı maksimize etmenin yolları, ayna ve renk kullanımı...'},
+{t:'Banyo Dolabı Cam Kapak Seçenekleri',c:'Ürün',tags:['cam kapak','vitrinli dolap','şeffaf kapak'],d:'Şeffaf, buzlu ve renkli cam kapaklı banyo dolaplarının estetik ve fonksiyonel özellikleri...'},
+{t:'Banyoda Wabi-Sabi Tarzı: Kusursuz Güzellik',c:'İlham',tags:['wabi-sabi','doğal güzellik','organik banyo'],d:'Japon wabi-sabi felsefesiyle banyo tasarımı: doğal dokular, imperfeksiyon ve sadelik...'},
+{t:'Banyo Dolabı Silikon Uygulaması',c:'İpucu',tags:['silikon uygulama','su geçirmez','dolap montaj'],d:'Banyo dolabı duvar ve tezgah birleşimlerinde doğru silikon uygulaması rehberi...'},
+{t:'Duşakabin Sürgü Sistemi Bakımı',c:'İpucu',tags:['sürgü bakım','ray temizliği','duşakabin bakım'],d:'Duşakabin sürgü raylarının temizliği, yağlama ve rulman bakımı...'},
+{t:'Banyoda Pembe Tonlar: Romantik ve Modern',c:'Trendler',tags:['pembe banyo','blush pink','romantik tasarım'],d:'Pastel pembe ve blush tonlarıyla feminen ve modern banyo dekorasyon fikirleri...'},
+{t:'Banyo Dolabı Numune Talebi Nasıl Yapılır?',c:'Rehber',tags:['numune talep','renk örneği','malzeme örneği'],d:'Online sipariş öncesi renk ve malzeme numunesi talep etme yolları ve dikkat edilecekler...'},
+{t:'Banyoda Kontrastlı Tasarım: Siyah-Beyaz Uyumu',c:'Dekorasyon',tags:['siyah beyaz','kontrast banyo','monokrom'],d:'Siyah ve beyaz renklerin güçlü kontrastıyla zamansız ve şık banyo tasarımı fikirleri...'},
+{t:'Banyo Dolabı Entegre Priz ve USB Şarj',c:'Ürün',tags:['entegre priz','USB şarj','akıllı dolap'],d:'Modern banyo dolaplarında entegre elektrik prizi ve USB şarj noktası çözümleri...'},
+{t:'Banyoda Enerji Verimliliği Rehberi',c:'Bilgi',tags:['enerji verimli','tasarruf','LED avantaj'],d:'LED aydınlatma, su tasarruflu armatür ve ısı yalıtımı ile banyo enerji maliyetini düşürme...'},
+{t:'Banyo Dolabı Seramik Lavabo Tamiri',c:'İpucu',tags:['seramik tamir','lavabo çizik','onarım'],d:'Çizilmiş veya çatlamış seramik lavaboyu tamir etme yöntemleri ve ne zaman değiştirilmeli...'},
+{t:'Banyoda Teak Ahşap Kullanımı',c:'Dekorasyon',tags:['teak ahşap','tropikal ahşap','neme dayanıklı'],d:'Doğal nem direncine sahip teak ahşabın banyoda kullanım alanları ve bakım önerileri...'},
+{t:'Banyo Duşakabin Eşik Profili Seçimi',c:'Rehber',tags:['eşik profil','duşakabin eşik','su bariyeri'],d:'Eşikli ve eşiksiz duşakabin profil seçenekleri, su tutma kapasitesi ve estetik uyum...'},
+{t:'İkinci El Banyo Dolabı Alırken Dikkat',c:'İpucu',tags:['ikinci el','kullanılmış dolap','dikkat etmek'],d:'İkinci el banyo dolabı alırken kontrol etmeniz gereken kritik noktalar ve riskler...'},
+{t:'Banyoda Granit Tezgah Kullanımı',c:'Dekorasyon',tags:['granit tezgah','doğal taş tezgah','dayanıklı yüzey'],d:'Granit tezgahların banyo ortamında performansı, bakımı ve mermerle karşılaştırması...'},
+{t:'Banyo Dolabı İle Çamaşır Sepeti Entegrasyonu',c:'Ürün',tags:['çamaşır sepeti','entegre sepet','gizli depolama'],d:'Banyo dolabı içine entegre edilebilen çamaşır sepeti çözümleri ve mekanizma seçenekleri...'},
+{t:'Duşakabin Aromaterapia: Duşta Buhar Sistemi',c:'Bilgi',tags:['aromaterapi','buhar sistemi','spa duş'],d:'Duşta buhar ve aromaterapi sistemi kurulumu ile evde spa deneyimi yaşama rehberi...'},
+{t:'Banyoda Lacivert ve Altın Kombinasyonu',c:'Dekorasyon',tags:['lacivert banyo','navy gold','lüks kombinasyon'],d:'Lacivert duvar veya dolap ile altın renk aksesuarların yarattığı sofistike banyo atmosferi...'},
+{t:'Banyo Dolabı Kapak Değişimi: Yenilemenin Kolay Yolu',c:'İpucu',tags:['kapak değişimi','dolap yenileme','ekonomik çözüm'],d:'Tüm dolabı değiştirmek yerine sadece kapak ve tezgah değişimiyle banyoyu yenileme rehberi...'},
+{t:'Banyoda Fütüristik Tasarım: 2030 Vizyonu',c:'Trendler',tags:['fütüristik banyo','gelecek tasarım','teknoloji banyo'],d:'Holografik aynalar, ses kontrollü armatürler ve AI destekli banyo sistemleri hakkında gelecek vizyonu...'},
+{t:'Banyo Dolabı Üretiminde Kullanılan Yapıştırıcılar',c:'Bilgi',tags:['yapıştırıcı','PVA tutkal','dolap üretim'],d:'Neme dayanıklı yapıştırıcı türleri, formaldehit içermeyen seçenekler ve sağlık standartları...'},
+{t:'Banyoda Epoksi Zemin Kaplama',c:'Trendler',tags:['epoksi zemin','reçine kaplama','dekoratif zemin'],d:'Epoksi reçine ile banyo zemininde derzsiz, parlak ve su geçirmez yüzey oluşturma rehberi...'},
+{t:'Banyo Dolabı için Entegre Bluetooth Hoparlör',c:'Ürün',tags:['bluetooth hoparlör','müzik banyo','akıllı dolap'],d:'Banyo dolabına entegre su geçirmez bluetooth hoparlör sistemleri ve kurulum seçenekleri...'},
+{t:'Banyoda Bakır Aksesuar Trendi',c:'Trendler',tags:['bakır aksesuar','copper trend','metalik detay'],d:'Bakır tonlu batarya, havluluk ve duş setleriyle sıcak ve sofistike banyo atmosferi yaratma...'},
+{t:'Banyo Dolabı Sigorta ve Hasar Koruması',c:'Bilgi',tags:['sigorta','hasar koruma','su hasarı'],d:'Su basması ve benzeri risklere karşı banyo mobilyalarınızı sigortalamanın yolları...'},
+{t:'Banyoda Büyük Format Seramik Kaplama',c:'Dekorasyon',tags:['büyük format','120x60','geniş karo'],d:'60x120 ve 120x120 büyük format karolarla derz sayısını azaltarak modern ve temiz görünüm...'},
+{t:'Banyo Dolabı Cam Raf Taşıma Kapasitesi',c:'Bilgi',tags:['cam raf','taşıma kapasitesi','raf seçimi'],d:'Farklı kalınlıktaki cam rafların taşıma kapasiteleri ve güvenli kullanım önerileri...'},
+{t:'Banyoda Açık Duş Konsepti (Walk-Through)',c:'İlham',tags:['açık duş','walk through','kapısız duş'],d:'Kapısız açık duş alanı tasarımının avantajları, su sıçrama önleme ve zemin eğimi çözümleri...'},
+{t:'Banyo Dolabı Kaplama Teknolojileri: PET, Akrilik, Melamin',c:'Bilgi',tags:['PET kaplama','akrilik kapak','melamin'],d:'Farklı kapak kaplama teknolojilerinin dayanıklılık, görünüm ve fiyat karşılaştırması...'},
+{t:'Banyoda Alçıpan Duvar ve Neme Dayanıklılık',c:'Rehber',tags:['alçıpan','neme dayanıklı','yeşil alçıpan'],d:'Banyoda alçıpan duvar kullanımı, su geçirmez alçıpan seçimi ve ek yalıtım önlemleri...'},
+{t:'Banyo Dolabı ve Ayna Feng Shui Kuralları',c:'İlham',tags:['feng shui','ayna yerleşim','enerji akışı'],d:'Feng Shui prensiplerine göre banyo dolabı ve ayna yerleşimi, enerji akışını optimize etme...'},
+{t:'Banyoda Traverten Kullanımı',c:'Dekorasyon',tags:['traverten','doğal taş','banyo kaplama'],d:'Traverten taşının banyoda duvar ve zemin kaplaması olarak kullanımı, bakım ve dezavantajları...'},
+{t:'Banyo Dolabı Soft-Close Mekanizma Değişimi',c:'İpucu',tags:['mekanizma değişim','soft-close tamir','menteşe yenileme'],d:'Bozulan veya eskiyen soft-close menteşeyi kendiniz değiştirmenin adım adım rehberi...'},
+{t:'Banyoda Makyaj Alanı Tasarımı',c:'İlham',tags:['makyaj alanı','vanity area','banyo makyaj'],d:'Banyo içinde özel makyaj köşesi tasarımı, aydınlatma seçimi ve depolama çözümleri...'},
+{t:'Banyo Dolabı Üretim Süreci: Fabrikadan Eve',c:'Bilgi',tags:['üretim süreci','fabrika','kalite kontrol'],d:'Bir banyo dolabının hammaddeden bitmiş ürüne dönüşme süreci, kalite kontrol aşamaları...'},
+{t:'Banyoda Doğal Aydınlatma Tüpü (Sun Tunnel)',c:'Bilgi',tags:['sun tunnel','doğal ışık tüpü','penceresiz banyo'],d:'Penceresiz banyolara doğal güneş ışığı taşıyan aydınlatma tüpü sistemi ve kurulumu...'},
+{t:'Banyo Dolabı Özel Sipariş: Ne Kadar Sürer?',c:'Rehber',tags:['özel sipariş','üretim süresi','teslimat'],d:'Özel ölçü ve renkte banyo dolabı siparişinin tasarımdan teslimatına kadar geçen süre ve aşamalar...'},
+{t:'Banyoda Otomatik Koku Giderici Sistemler',c:'Ürün',tags:['koku giderici','otomatik sprey','banyo hijyen'],d:'Sensörlü ve zamanlayıcılı otomatik koku giderici sistemlerle her zaman ferah banyo...'},
+{t:'Banyo Dolabı Tezgahında Entegre Sabunluk',c:'Ürün',tags:['entegre sabunluk','tezgah sabunluk','gömme dispenser'],d:'Banyo dolabı tezgahına gömme sıvı sabunluk çözümleri, montaj ve bakım bilgileri...'},
+{t:'Banyoda Siyah Batarya ve Aksesuar Trendi',c:'Trendler',tags:['siyah batarya','mat siyah','siyah aksesuar'],d:'Mat siyah batarya, duş seti ve aksesuarlarla banyonuza dramatik ve modern bir hava katma...'},
+{t:'Banyo Dolabı Yanma ve Su Hasarı Durumunda Ne Yapmalı?',c:'Rehber',tags:['su hasarı','hasar onarım','acil durum'],d:'Su basması veya nem kaynaklı hasar durumunda banyo dolabınızı kurtarma ve sigorta başvuru rehberi...'},
+{t:'Banyoda Akustik Panel Kullanımı',c:'Bilgi',tags:['akustik panel','ses yalıtım','banyo akustik'],d:'Banyo duvarlarında su geçirmez akustik panel kullanarak yankıyı azaltma ve konfor artırma...'},
+{t:'Banyo Dolabı Katalog İnceleme Rehberi',c:'Rehber',tags:['katalog','ürün karşılaştırma','dolap seçimi'],d:'Online ve basılı banyo dolabı kataloglarını okurken dikkat etmeniz gereken teknik detaylar...'},
+{t:'Banyoda Termal Banyo Konsepti: Evde Spa',c:'İlham',tags:['termal banyo','ev spa','sıcak buhar'],d:'Evde termal banyo deneyimi için buhar jeneratörü, aromaterapi ve sıcak taş masaj köşesi...'},
+{t:'Banyo Dolabı ve Çevre: Karbon Ayak İzi',c:'Bilgi',tags:['karbon ayak izi','çevre dostu','yeşil üretim'],d:'Banyo dolabı üretiminde sürdürülebilirlik, FSC sertifikalı ahşap ve düşük emisyon kaplamaları...'},
+{t:'Banyoda Dijital Banyo Termostatı',c:'Ürün',tags:['dijital termostat','sıcaklık kontrol','akıllı duş'],d:'Dijital ekranlı duş termostatlarıyla su sıcaklığını hassas ayarlama, güvenlik ve konfor...'},
+{t:'Banyo Dolabı Showroom Ziyaret Rehberi',c:'Rehber',tags:['showroom','mağaza ziyaret','ürün inceleme'],d:'Banyo dolabı showroom ziyaretinden maksimum fayda sağlamak için hazırlık ve soru listesi...'},
+{t:'Banyoda Mozaik Zemin Tasarımı: Desenden Uygulamaya',c:'Dekorasyon',tags:['mozaik zemin','banyo zemin tasarım','dekoratif döşeme'],d:'Mozaik zemin karoları ile banyonuza sanatsal bir dokunuş katmanın tüm aşamaları ve ilham kaynakları...'}
+];
+
+// Blog categories
+const blogCats=[...new Set(blogPosts.map(b=>b.c))];
+let blogFilter='Tümü';
+let blogSearchText='';
+let blogVisCount=12;
+
+function getFilteredBlogs(){
+  return blogPosts.filter(b=>{
+    const catMatch=blogFilter==='Tümü'||b.c===blogFilter;
+    const searchMatch=blogSearchText===''||b.t.toLowerCase().includes(blogSearchText)||b.tags.some(t=>t.includes(blogSearchText))||b.d.toLowerCase().includes(blogSearchText);
+    return catMatch&&searchMatch;
+  });
+}
+
+function renderBlogFilters(){
+  document.getElementById('blogFilters').innerHTML=['Tümü',...blogCats].map(c=>`<button class="blog-filter-btn${c===blogFilter?' active':''}" onclick="setBlogFilter('${c}')">${c}</button>`).join('');
+}
+
+function renderBlogs(){
+  const filtered=getFilteredBlogs();
+  const show=filtered.slice(0,blogVisCount);
+  document.getElementById('blogCount').innerHTML=`<strong>${filtered.length}</strong> makale bulundu`;
+  document.getElementById('blogGrid').innerHTML=show.map((b,i)=>`<div class="blog-card"><div class="blog-img"><img src="${bImg((i*3+7)%bathroomImgs.length)}" alt="${b.t}" loading="lazy"><span class="blog-cat-tag">${b.c}</span></div><div class="blog-body"><div class="blog-meta"><span>${b.c}</span><span>${['Şub','Oca','Ara','Kas','Eki','Eyl','Ağu','Tem','Haz','May','Nis','Mar'][i%12]} 2026</span><span>${Math.floor(3+Math.random()*8)} dk okuma</span></div><h3>${b.t}</h3><p>${b.d}</p><div class="blog-tags">${b.tags.map(t=>`<span class="blog-tag">${t}</span>`).join('')}</div><a href="#" class="blog-link">Devamını Oku →</a></div></div>`).join('');
+  document.getElementById('blogLoadMore').style.display=blogVisCount>=filtered.length?'none':'inline-block';
+}
+
+function setBlogFilter(c){blogFilter=c;blogVisCount=12;renderBlogFilters();renderBlogs()}
+function filterBlogs(){blogSearchText=document.getElementById('blogSearch').value.toLowerCase().trim();blogVisCount=12;renderBlogs()}
+function loadMoreBlogs(){blogVisCount+=12;renderBlogs()}
+
+renderBlogFilters();
+renderBlogs();
+
+// Scrolling Reviews (duplicated for infinite loop)
+const reviews=[
+  {name:'Ayşe Yılmaz',loc:'İstanbul, Kadıköy',text:'Dolap kalitesi ve duşakabin işçiliği mükemmel. Montaj ekibi çok profesyonel.',init:'AY'},
+  {name:'Mehmet Kaya',loc:'Ankara, Çankaya',text:'3D tasarım sayesinde banyomu önceden görebildim. Taksit imkanı büyük kolaylık.',init:'MK'},
+  {name:'Selin Demir',loc:'İzmir, Çeşme',text:'Villa projemizde 6 banyo yaptırdık. Özel ölçü üretim kabiliyetleri harika.',init:'SD'},
+  {name:'Ali Öztürk',loc:'Bursa, Nilüfer',text:'Nano kaplamalı duşakabin aldık, su lekesi kalmıyor. 12 ay taksitle çok uygun.',init:'AÖ'},
+  {name:'Zeynep Arslan',loc:'Antalya, Konyaaltı',text:'Eleganza serisi harika görünüyor. Soft-close çok sessiz. 10 yıl garanti büyük avantaj.',init:'ZA'},
+  {name:'Burak Şahin',loc:'İstanbul, Beşiktaş',text:'Ücretsiz keşif ekibi geldi, ölçüler alındı, 3 günde 3D tasarım hazırdı. Profesyonel.',init:'BŞ'},
+  {name:'Fatma Çelik',loc:'Ankara, Etimesgut',text:'Otel projemiz için toplu sipariş verdik. Zamanında teslim, kaliteli ürün.',init:'FÇ'},
+  {name:'Hakan Yıldız',loc:'İzmir, Karşıyaka',text:'LED aynalı dolap aldık, buğu önleme sistemi harika. Montaj ücretsiz ve titiz.',init:'HY'},
+  {name:'Deniz Acar',loc:'Muğla, Bodrum',text:'Cristallo duşakabin mükemmel. 10mm cam çok sağlam hissettiriyor. Tavsiye ederim.',init:'DA'},
+  {name:'Elif Koç',loc:'İstanbul, Sarıyer',text:'Milano serisi banyo dolabı aldık. Meşe kaplama çok doğal görünüyor. Çok memnunuz.',init:'EK'},
+  {name:'Cem Yavuz',loc:'Ankara, Ümitköy',text:'Özel ölçü üretim yaptırdık, banyoya biçilmiş kaftan. Fiyat/performans mükemmel.',init:'CY'},
+  {name:'Gül Özkan',loc:'Antalya, Lara',text:'14 gün iade garantisi bize güven verdi. Ürün beklediğimizden bile güzel geldi.',init:'GÖ'},
+  {name:'Murat Aktaş',loc:'İstanbul, Ataşehir',text:'CardFinans ile 6 taksit yaptık. Montaj ekibi aynı gün geldi. Süper hizmet.',init:'MA'},
+  {name:'Sibel Erdoğan',loc:'Bursa, Osmangazi',text:'Luminosa aynalı dolap hayatımı değiştirdi. LED aydınlatma makyaj için ideal.',init:'SE'},
+  {name:'Tolga Kılıç',loc:'İzmir, Bornova',text:'Kargo çok hızlı geldi, paketleme özenli. Ürün kalitesi fiyatına göre çok iyi.',init:'TK'},
+  {name:'Aylin Sarı',loc:'İstanbul, Bakırköy',text:'Showroom\'u ziyaret ettik, tüm ürünleri yerinde gördük. Çok yardımcı oldular.',init:'AS'}
+];
+const trackEl=document.getElementById('reviewsTrack');
+const revHTML=reviews.map(r=>`<div class="review-card"><div class="stars">★★★★★</div><div class="text">"${r.text}"</div><div class="author"><div class="avatar">${r.init}</div><div><div class="name">${r.name}</div><div class="loc">${r.loc}</div></div></div></div>`).join('');
+trackEl.innerHTML=revHTML+revHTML; // duplicate for seamless loop
+
+// FAQ
+const faqData=[
+  {q:'Taksit seçenekleriniz nelerdir?',a:'Tüm banka kartlarına 12 aya varan vade farksız taksit. Bonus, Maximum, Axess, World, Paraf, CardFinans geçerlidir.'},
+  {q:'Ücretsiz montaj 81 ilde geçerli mi?',a:'Evet, Türkiye geneli 81 ilde ücretsiz montaj. Teslimat sonrası 3 iş günü içinde randevu oluşturulur.'},
+  {q:'Özel ölçü üretim yapıyor musunuz?',a:'Evet, cm bazında hassas özel ölçü üretim yapıyoruz. Özel ölçülerde %10 fark uygulanır.'},
+  {q:'İade koşulları nelerdir?',a:'14 gün koşulsuz iade/değişim. Ürün kullanılmamış ve orijinal ambalajında olmalıdır. Kargo bizden.'},
+  {q:'3D tasarım ücretsiz mi?',a:'Evet, tamamen ücretsiz. Keşif sonrası 3-5 iş günü içinde fotorealistik 3D tasarım hazırlanır.'},
+  {q:'Garanti kapsamı nedir?',a:'10 yıl üretici garantisi. Üretim hataları, mekanizma arızaları ücretsiz onarılır. Ömür boyu yedek parça.'},
+  {q:'Kargo ne zaman gelir?',a:'Stok ürünler 3-5 iş günü, özel üretim 15-20 iş günü. SMS ve e-posta ile kargo takip bilgisi gönderilir.'},
+  {q:'Showroom nerede?',a:'İstanbul Maslak. Pzt-Cmt 09:00-19:00, Pazar 10:00-17:00. Tüm ürünleri yerinde görebilirsiniz.'}
+];
+document.getElementById('faqList').innerHTML=faqData.map(f=>`<div class="faq-item reveal"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">${f.q}</div><div class="faq-a">${f.a}</div></div>`).join('');
+
+// Re-observe dynamically added reveals
+setTimeout(()=>document.querySelectorAll('.reveal:not(.visible)').forEach(el=>rObs.observe(el)),300);
+
+// Image error fallback
+document.addEventListener('error',function(e){
+  if(e.target.tagName==='IMG'){
+    e.target.style.display='none';
+    if(e.target.parentElement) e.target.parentElement.style.background='linear-gradient(135deg,#e8e2da,#d4c8b8)';
+  }
+},true);
 </script>
 </body>
 </html>
